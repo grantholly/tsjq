@@ -35,7 +35,12 @@ export class Decoder {
         switch(this.scanner.current) {
             case '"':
             // string
-                jsonData = "stub"
+                // this needs to no skip spaces os I might need
+                // another scanner method as this is currently
+                // broken
+                const maybeString = this.scanner.scanTo([])
+                const stringValue = new Types.JsonString(maybeString)
+                jsonData = stringValue
                 break
             case 'n':
             // null
@@ -159,10 +164,12 @@ const numbersAndStrings = '{"first": 1, "second":  "second"}'
 // trailing space like '{} '
 const empty = '{     }'
 const arrayExample = '[1,2,3, 4]'
-const totallyNull = 'null '
-const totallyTrue = 'true '
-const totallyFalse = 'false '
+const totallyNull = 'null'
+const totallyTrue = 'true'
+const totallyFalse = 'false'
+// broken
+const aString = '"let\'s try this out"'
 const tests = [objects, arrays, stuff, numbersAndStrings, 
     empty, arrayExample, totallyNull, totallyFalse, 
-    totallyTrue]
+    totallyTrue, aString]
 tests.forEach((test) => {let vs = new Decoder(test)})

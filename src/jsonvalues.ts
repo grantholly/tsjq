@@ -32,7 +32,6 @@ class JsonNull extends JsonValue {
 class JsonBoolean extends JsonValue {
     validate() {
         // check for true
-        console.log(this.data)
         if (this.len === 4) {
             if (this.data[0] === 't'
                 && this.data[1] === 'r'
@@ -53,18 +52,18 @@ class JsonBoolean extends JsonValue {
     }
 }
 
-class JsonString {}
-
-class JsonNumber {}
-
-// helper
-function quoted(s: string): boolean {
-    if (s[0] === '"') {
-        if (s[s.length]=== '"') {
-            return false
-        }
+class JsonString extends JsonValue {
+    validate() {
+        if (this.data[0] === '"'
+            && this.data[this.len] === '"') {
+                return this.data
+            }
+        this.error = new Error('cannot create string value')
     }
-    return true
+}
+
+class JsonNumber extends JsonValue {
+    validate() {}
 }
 
 export {JsonBoolean, JsonNull, JsonNumber, JsonString}
