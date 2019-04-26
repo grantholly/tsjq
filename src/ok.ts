@@ -1,31 +1,168 @@
 import { Scanner } from "./scanner";
+import { JsonValue } from "./sure";
+import  *  as Types from "./jsonvalues";
 
-class ValueScanner {
+class Pair {
+    key: string
+    value: any
+
+    constructor(k: string, v: any) {
+        this.key = k
+        this.value = v
+    }
+}
+
+export class Decoder {
     scanner: Scanner
 
     constructor(s: string) {
         this.scanner = new Scanner(s)
+        this.decode()
     }
 
-    scanScalar() {}
+    decodeScalar() {
+        // pattern match value and dispatch to type
 
-    scanArray() {}
+        // need to rewind as we have already scanned the first
+        // value in decode() (maybe?)  we could also do something
+        // like this.scanner.data[0] if we want to make data public
+        // or provide some kind of getter
+        // pretty sure that I don't want 'rewind' behaviour
+        // because I don't want to make the scanner complicated
+        this.scanner.reset()
+        let jsonData: JsonValue
 
-    scanObject() {}
+        switch(this.scanner.current) {
+            case '"':
+            // string
+                jsonData = "stub"
+                break
+            case 'n':
+            // null
+                // scans to end of data
+                const maybeNull = this.scanner.scanTo([])
+                const nullValue = new Types.JsonNull(maybeNull)
+                jsonData = nullValue
+                break
+            case 't':
+            // true
+                const maybeTrue = this.scanner.scanTo([])
+                const trueValue = new Types.JsonBoolean(maybeTrue)
+                jsonData = trueValue
+                break
+            case 'f':
+            // false
+                const maybeFalse = this.scanner.scanTo([])
+                const falseValue = new Types.JsonBoolean(maybeFalse)
+                jsonData = falseValue
+                break
+            default:
+            // number
+                jsonData = "stub"
+        }
+        console.log(jsonData)
+    }
+
+    decodeArrayElement(elements: Array<any> = []): Array<any> {
+        // recursive
+        console.log('scanning array element')
+        let element = this.scanner.scanTo([',', ']'])
+        if (this.scanner.current === ']') {
+            elements.push(element)
+            return elements
+        } else {
+            elements.push(element)
+            return this.decodeArrayElement(elements)
+        }
+    }
+
+    decodeArray() {
+        //already scanned '['
+        console.log('scanning array')
+        let jsonData = []
+        let elements = this.decodeArrayElement()
+        for (let i = 0; i < elements.length; i++) {
+            const element = elements[i]
+            jsonData.push(element)
+        }
+        console.log(jsonData)
+        return jsonData
+    }
+
+    decodeObjectKey(): string | undefined {
+        console.log('scanning object key')
+        let key = this.scanner.scanTo([':'])
+        if (key === '}') {
+            //reached end of object with no keys
+            return undefined
+        }
+        return key
+    }
+
+    decodeObjectElement(elements: Array<Pair> = []): Array<Pair> {
+        // recursive
+        console.log('scanning object element')
+        let key = this.decodeObjectKey()
+        if (key !== undefined) {
+            // need to pattern match on value so that 
+            // I don't have all string values then dispatch
+            // that value to the right JsonValue class
+            let value = this.scanner.scanTo([',', '}'])
+            if (this.scanner.current !== '}') {
+                elements.push(new Pair(key, value))
+                return this.decodeObjectElement(elements)
+            } else {
+                elements.push(new Pair(key, value))
+                return elements
+            }
+        } else {
+            return []
+        }
+    }
+
+    decodeObject() {
+        //already scanned '{'
+        console.log('scanning object')
+        let jsonData: {
+            [key: string]: JsonValue
+        } = {}
+        let elements = this.decodeObjectElement()
+        for (let i = 0; i  < elements.length; i++) {
+            const element = elements[i]
+
+            jsonData[element.key] = element.value
+        }
+        console.log(jsonData)
+        return jsonData
+    }
 
     decode() {
-        while(! this.scanner.done()) {
-            let begin = this.scanner.scan()
-            if (begin !== undefined) {
-                switch(begin) {
-                    case '{':
-                        this.scanObject()
-                    case '[':
-                        this.scanArray()
-                    default:
-                        this.scanScalar()
-                }
-            }
+        let begin = this.scanner.scan()
+        switch(begin) {
+            case '{':
+                this.decodeObject()
+                break
+            case '[':
+                this.decodeArray()
+                break
+            default:
+                this.decodeScalar()
         }
     }
 }
+
+const objects = '{"a": {"b":   {"cee":"yo"}}}'
+const arrays = '{"a":[1, [2, [3]]],"bee": []}'
+const stuff = '{b":null,  "c": true,"d":false}'
+const numbersAndStrings = '{"first": 1, "second":  "second"}'
+// note: I can recursively overflow the stack with a
+// trailing space like '{} '
+const empty = '{     }'
+const arrayExample = '[1,2,3, 4]'
+const totallyNull = 'null '
+const totallyTrue = 'true '
+const totallyFalse = 'false '
+const tests = [objects, arrays, stuff, numbersAndStrings, 
+    empty, arrayExample, totallyNull, totallyFalse, 
+    totallyTrue]
+tests.forEach((test) => {let vs = new Decoder(test)})
