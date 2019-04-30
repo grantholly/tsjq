@@ -1,12 +1,28 @@
-class Decoder {
+import { Scanner } from "./scanner";
+import { ScanStates } from "./sure";
+
+
+export class Decoder {
     data: string
+    scanner: Scanner
+    current: string
+    index: number
+    state: Array<ScanStates>
     jsonData: any
 
     constructor(data: string) {
         this.data = data
+        this.scanner = new Scanner(data)
+        this.current = data[0]
+        this.index = this.scanner.scanned
+        this.state = []
     }
 
-    parse() {
+    pushState(): void {}
+
+    popState(): string { return 'ok' }
+
+    decode() {
         switch (this.data[0]) {
             case '{':
                 this.decodeObject(this.data)
