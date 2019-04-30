@@ -54,11 +54,15 @@ class JsonBoolean extends JsonValue {
 
 class JsonString extends JsonValue {
     validate() {
-        if (this.data[0] === '"'
-            && this.data[this.len] === '"') {
+       if (this.len <= 1) {
+           this.error = new Error('cannot create string value with length <= 1')
+       }
+       if (this.data[0] === '"'
+            && this.data[this.len - 1] === '"') {
                 return this.data
+            } else {
+                this.error = new Error('cannot create string value with unbalanced quotes')
             }
-        this.error = new Error('cannot create string value')
     }
 }
 

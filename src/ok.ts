@@ -158,22 +158,28 @@ export class Decoder {
 const objects = '{"a": {"b":   {"cee":"yo"}}}'
 const arrays = '{"a":[1, [2, [3]]],"bee": []}'
 const stuff = '{b":null,  "c": true,"d":false}'
-const numbersAndStrings = '{"first": 1, "second":  "second"}'
+// note: need to preserve spaces in keys
+// currently returning { '"first"': '1', '"secondplace"': '"second"' }
+const numbersAndStrings = '{"first": 1, "second place":  "second"}'
 // note: I can recursively overflow the stack with a
 // trailing space like '{} '
 const emptyObject = '{     }'
+// note: currently incorrectly returning ['']
+// but currently works with both spaces
+const emptyArray = ' [    ]  '
 const arrayExample = '[1,2,3, 4]'
 const totallyNull = 'null'
 const totallyTrue = 'true'
 const totallyFalse = 'false'
-// broken
 const aString = '"\r\t\nlet\'s try this \nout\r"'
 const addSomeEscapes = '"he said \"no\""'
+// note: not currently matching a string
 const emoticon = "\u1234"
+// note: not currently matching a string
 const emptyString = ''
 const tests = [
     objects, arrays, stuff, numbersAndStrings, 
     emptyObject, arrayExample, totallyNull, totallyFalse, 
-    totallyTrue, aString,
+    emptyArray, totallyTrue, aString,
     aString, addSomeEscapes, emoticon, emptyString]
 tests.forEach((test) => {let vs = new Decoder(test)})

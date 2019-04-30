@@ -4,7 +4,7 @@ export class Scanner {
     skipped: number
     end: number
     current: string
-
+    
     constructor(s: string) {
         this.data = s
         this.scanned = 0
