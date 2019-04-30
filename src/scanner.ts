@@ -54,6 +54,24 @@ export class Scanner {
                     val = val.concat(char)
                 }
             } else {
+                // scanned to end of scanner
+                scanning = false
+            }
+        }
+        return val
+    }
+
+    scanString(): string {
+        // still need to handle empty strings
+        let val = ''
+        let scanning = true
+        while (scanning) {
+            if (! this.done()) {
+                this.scanned ++
+                this.current = this.data[this.scanned - 1]
+                val = val.concat(this.data[this.scanned - 1])
+                //console.log(this)
+            } else {
                 scanning = false
             }
         }

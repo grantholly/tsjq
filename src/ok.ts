@@ -35,10 +35,9 @@ export class Decoder {
         switch(this.scanner.current) {
             case '"':
             // string
-                // this needs to no skip spaces os I might need
-                // another scanner method as this is currently
-                // broken
-                const maybeString = this.scanner.scanTo([])
+                // this is currently not matching string that start
+                // with escape characters
+                const maybeString = this.scanner.scanString()
                 const stringValue = new Types.JsonString(maybeString)
                 jsonData = stringValue
                 break
@@ -162,14 +161,19 @@ const stuff = '{b":null,  "c": true,"d":false}'
 const numbersAndStrings = '{"first": 1, "second":  "second"}'
 // note: I can recursively overflow the stack with a
 // trailing space like '{} '
-const empty = '{     }'
+const emptyObject = '{     }'
 const arrayExample = '[1,2,3, 4]'
 const totallyNull = 'null'
 const totallyTrue = 'true'
 const totallyFalse = 'false'
 // broken
-const aString = '"let\'s try this out"'
-const tests = [objects, arrays, stuff, numbersAndStrings, 
-    empty, arrayExample, totallyNull, totallyFalse, 
-    totallyTrue, aString]
+const aString = '"\r\t\nlet\'s try this \nout\r"'
+const addSomeEscapes = '"he said \"no\""'
+const emoticon = "\u1234"
+const emptyString = ''
+const tests = [
+    objects, arrays, stuff, numbersAndStrings, 
+    emptyObject, arrayExample, totallyNull, totallyFalse, 
+    totallyTrue, aString,
+    aString, addSomeEscapes, emoticon, emptyString]
 tests.forEach((test) => {let vs = new Decoder(test)})
