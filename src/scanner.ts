@@ -2,11 +2,13 @@ export class Scanner {
     data: string
     scanned: number
     end: number
+    current: string
     
     constructor(s: string) {
         this.data = s
         this.scanned = 0
         this.end = s.length
+        this.current = this.data[0]
     }
 
     done(): boolean {
@@ -18,8 +20,26 @@ export class Scanner {
     }
 
     scan(): string {
-        this.scanned ++
-        return this.data[this.scanned - 1]
+        if (! this.done()) {
+            this.scanned ++
+            this.current = this.data[this.scanned - 1]
+            return this.data[this.scanned - 1]
+        } else {
+            this.current = 'EOF'
+            return 'EOF'
+        }
+    }
+
+    scanNum(howMany: number): string {
+        let val = ''
+        while (howMany > 0) {
+            if (! this.done()) {
+                howMany --
+                let char = this.scan()
+                val = val.concat(char)
+            }
+        }
+        return val
     }
 
     scanTo(chars: Array<string>, 
@@ -56,7 +76,6 @@ export class Scanner {
             if (! this.done()) {
                 let char = this.scan()
                 if (this.isSpace(char)) {
-                    this.scanned ++
                     continue
                 } else {
                     scanning = false

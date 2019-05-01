@@ -2,6 +2,7 @@ import { Scanner } from "./scanner";
 import { JsonValue, Pair, ScanStates } from "./sure";
 import  *  as Types from "./jsonvalues";
 
+/*
 export class Decoder {
     scanner: Scanner
     index: number
@@ -181,3 +182,4 @@ const tests = [
     emptyArray, totallyTrue, aString,
     aString, addSomeEscapes, emoticon, emptyString]
 tests.forEach((test) => {let vs = new Decoder(test)})
+*/

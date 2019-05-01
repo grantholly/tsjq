@@ -21,6 +21,9 @@ export enum ScanStates {
     beginBoolean = 'beginBoolean',
     beginNull = 'beginNull',
     endString = 'endString',
+    endNumber = 'endNumber',
+    endBoolean = 'endBoolean',
+    endNull = 'endNull',
     endObject = 'endObject',
     endObjectKey = 'endObjectKey',
     endObjectValue = 'endObjectValue',
@@ -28,4 +31,8 @@ export enum ScanStates {
     endArrayValue = 'endArrayValue',
     endScan = 'endScan',
     skip = 'skip',
+}
+
+export enum ScanErrors {
+
 }
