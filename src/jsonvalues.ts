@@ -2,6 +2,7 @@ abstract class JsonValue {
     data: string
     len: number
     error: null | Error
+    jsonData: any
 
     constructor(s: string) {
         this.data = s
@@ -11,6 +12,10 @@ abstract class JsonValue {
     }
 
     abstract validate(): void
+
+    extract(): any {
+        return this.error === null ? this.jsonData : this.error
+    }
 }
 
 class JsonNull extends JsonValue {
@@ -22,7 +27,7 @@ class JsonNull extends JsonValue {
             && (this.data[1] === 'u')
             && (this.data[2] === 'l')
             && (this.data[3] === 'l')) {
-                return null
+                this.jsonData = null
         } else {
             this.error = new Error('cannot create null from ' + this.data)
         }
@@ -40,7 +45,7 @@ class JsonTrue extends JsonBoolean {
             && (this.data[1] === 'r')
             && (this.data[2] === 'u')
             && (this.data[3] === 'e')) {
-                return true
+                this.jsonData = true
         } else {
             this.error = new Error('cannot create true value from ' + this.data)
         }
@@ -57,7 +62,7 @@ class JsonFalse extends JsonBoolean {
             && (this.data[2] === 'l')
             && (this.data[3] === 's')
             && (this.data[4] === 'e')) {
-                return false
+                this.jsonData = false
         } else {
             this.error = new Error('cannot create true value from ' + this.data)
         }
@@ -71,7 +76,7 @@ class JsonString extends JsonValue {
        }
        if (this.data[0] === '"'
             && this.data[this.len - 1] === '"') {
-                return this.data
+                this.jsonData = this.data
             } else {
                 this.error = new Error('cannot create string value with unbalanced quotes from ' + this.data)
             }

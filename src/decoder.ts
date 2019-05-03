@@ -105,7 +105,7 @@ export class Decoder {
                 if (trueValue.error === null) {
                     this.pushState(ScanStates.endBoolean)
                 }
-                console.log(trueValue)
+                this.jsonData = trueValue.extract()
                 break
             case 'f':
                 const maybeFalse = this.scanner.current.concat(
@@ -115,10 +115,10 @@ export class Decoder {
                 if (falseValue.error === null) {
                     this.pushState(ScanStates.endBoolean)
                 }
-                console.log(falseValue)
+                this.jsonData = falseValue.extract()
                 break
             default:
-                console.error('cannot decode value for ' + this.data)                
+                console.error('cannot decode value for ' + this.data)
         }
     }
     decodeNull() {
@@ -134,6 +134,6 @@ export class Decoder {
         if (nullValue.error === null) {
             this.pushState(ScanStates.endNull)
         }
-        console.log(nullValue)
+        this.jsonData = nullValue.extract()
     }
 }
