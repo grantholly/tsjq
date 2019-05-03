@@ -7,6 +7,7 @@ export class Decoder {
     scanner: Scanner
     index: number
     state: Array<ScanStates>
+    error: null | Error
     jsonData: any
 
     constructor(data: string) {
@@ -14,6 +15,7 @@ export class Decoder {
         this.scanner = new Scanner(data)
         this.index = this.scanner.scanned
         this.state = []
+        this.error = null
         this.decode()
     }
 
@@ -74,9 +76,11 @@ export class Decoder {
             this.scanner.scanToEnd()
         )
         const stringValue = new Types.JsonString(maybeString)
-        if (stringValue.error === null) {
+        this.error = stringValue.errorState()
+        if (this.error === null) {
             this.pushState(ScanStates.endString)
         }
+        this.jsonData = stringValue
     }
     decodeNumber() {
         let jsonData: number
@@ -102,7 +106,8 @@ export class Decoder {
                     this.scanner.scanToEnd()
                 )
                 const trueValue = new Types.JsonTrue(maybeTrue)
-                if (trueValue.error === null) {
+                this.error = trueValue.errorState()
+                if (this.error === null) {
                     this.pushState(ScanStates.endBoolean)
                 }
                 this.jsonData = trueValue.extract()
@@ -112,7 +117,8 @@ export class Decoder {
                     this.scanner.scanToEnd()
                 )
                 const falseValue = new Types.JsonFalse(maybeFalse)
-                if (falseValue.error === null) {
+                this.error = falseValue.errorState()
+                if (this.error === null) {
                     this.pushState(ScanStates.endBoolean)
                 }
                 this.jsonData = falseValue.extract()
@@ -122,8 +128,8 @@ export class Decoder {
         }
     }
     decodeNull() {
+        let jsonData: null
         // 'n' has been scanned
-        let jsonData = null
         this.pushState(ScanStates.beginNull)
         // scan to the end of the value looking for
         // 'ull' and concat with the current
@@ -131,7 +137,8 @@ export class Decoder {
             this.scanner.scanToEnd()
         )
         const nullValue = new Types.JsonNull(maybeNull)
-        if (nullValue.error === null) {
+        this.error = nullValue.errorState()
+        if (this.error === null) {
             this.pushState(ScanStates.endNull)
         }
         this.jsonData = nullValue.extract()

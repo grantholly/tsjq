@@ -4,7 +4,7 @@ import { expect, assert } from 'chai';
 
 
 describe('A scanner...', function() {
-    describe('using #scan...', function () {
+    describe('using .scan...', function () {
         it('scans a single char', function() {
             const s = new Scanner('abc')
             expect(s.current).equal('a')
@@ -42,7 +42,7 @@ describe('A scanner...', function() {
         })
     })
 
-    describe('using #scanTo...' , function() {
+    describe('using .scanTo...' , function() {
         it('scans to the end of a string', function() {
             const s = new Scanner('"grant rulez"')
             // scan first quote

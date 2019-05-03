@@ -16,6 +16,10 @@ abstract class JsonValue {
     extract(): any {
         return this.error === null ? this.jsonData : this.error
     }
+
+    errorState(): null | Error {
+        return this.error
+    }
 }
 
 class JsonNull extends JsonValue {

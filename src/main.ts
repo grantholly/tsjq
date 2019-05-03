@@ -12,37 +12,8 @@ const stringTests = [
     escapedString, escapeCodes, unicodeCodePoint
 ]
 
-// null tests
-const realNull = 'null'
-const notNull = 'nuLL'
-const nully = 'nully'
-const notQuiteNull = 'nul'
-const nullWithSpaces = 'null\n'
-const nullTests = [
-    realNull, notNull, nully, notQuiteNull, nullWithSpaces
-]
-
-// boolean tests
-const realTrue = 'true'
-const notTrue = 'tRUE'
-const trueWithSpaces = 'true\t'
-const notQuiteTrue = 'tr'
-const trueTests = [
-    realTrue, notTrue, trueWithSpaces, notQuiteTrue
-]
-
-const realFalse = 'false'
-const notFalse = 'False'
-const falseWithSpaces = 'false    '
-const notQuiteFalse = 'fals'
-const falseTests = [
-    realFalse, notFalse, falseWithSpaces, notQuiteFalse
-]
-
-const booleanTests = [...trueTests, ...falseTests]
-
 const tests = [
-    ...booleanTests, ...nullTests
+    ...stringTests
 ]
 
 tests.forEach(t => {
