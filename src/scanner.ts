@@ -1,81 +1,87 @@
 export class Scanner {
     data: string
     scanned: number
-    skipped: number
     end: number
     current: string
     
     constructor(s: string) {
         this.data = s
         this.scanned = 0
-        this.skipped = 0
         this.end = s.length
-        this.current = s[0]
+        this.current = this.data[0]
     }
 
     done(): boolean {
-        if (this.scanned === this.end) {
-            return true
-        }
-        return false
+       return this.scanned === this.end ? true : false
     }
 
     reset(): void {
         this.scanned = 0
-        this.skipped = 0
-        this.current = this.data[this.scanned]
     }
 
     scan(): string {
-        if (this.done()) {
+        if (! this.done()) {
+            this.scanned ++
+            this.current = this.data[this.scanned - 1]
+            return this.data[this.scanned - 1]
+        } else {
             this.current = 'EOF'
             return 'EOF'
         }
-        if (this.isSpace(this.data[this.scanned])) {
-            this.scanned++
-            this.skipped++
-            return this.scan()
-        }
-        this.scanned ++
-        this.current = this.data[this.scanned - 1]
-        return this.data[this.scanned - 1]
     }
 
-    scanTo(chars: Array<string>): string {
+    scanNum(howMany: number): string {
+        let val = ''
+        while (howMany > 0) {
+            if (! this.done()) {
+                howMany --
+                let char = this.scan()
+                val = val.concat(char)
+            }
+        }
+        return val
+    }
+
+    scanTo(chars: Array<string>, 
+            skipSpaces: boolean = false): string {
         let val = ''
         let scanning = true
         while (scanning) {
             if (! this.done()) {
                 let char = this.scan()
-                // hit a stop char
                 if (chars.indexOf(char) >= 0) {
                     scanning = false
                 } else {
                     val = val.concat(char)
                 }
             } else {
-                // scanned to end of scanner
                 scanning = false
             }
         }
-        return val
+        if (skipSpaces) {
+            val = val.replace(/\s/gi, '')
+        }
+        return val     
     }
 
-    scanString(): string {
-        // still need to handle empty strings
-        let val = ''
+    scanToEnd(skipSpaces: boolean = false): string {
+        return this.scanTo([], skipSpaces)
+    }
+    
+    // maybe I need a method to scan until hitting a
+    // non-space char
+    scanToNext(): void {
         let scanning = true
         while (scanning) {
             if (! this.done()) {
-                this.scanned ++
-                this.current = this.data[this.scanned - 1]
-                val = val.concat(this.data[this.scanned - 1])
-                //console.log(this)
-            } else {
-                scanning = false
+                let char = this.scan()
+                if (this.isSpace(char)) {
+                    continue
+                } else {
+                    scanning = false
+                }
             }
         }
-        return val
     }
 
     isSpace(char: string | void): boolean {

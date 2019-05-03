@@ -1,22 +1,21 @@
 import { Scanner } from "./scanner";
-import { JsonValue } from "./sure";
+import { JsonValue, Pair, ScanStates } from "./sure";
 import  *  as Types from "./jsonvalues";
 
-class Pair {
-    key: string
-    value: any
-
-    constructor(k: string, v: any) {
-        this.key = k
-        this.value = v
-    }
-}
-
+/*
 export class Decoder {
     scanner: Scanner
+    index: number
+    len: number
+    current: string
+    state: Array<ScanStates>
 
     constructor(s: string) {
         this.scanner = new Scanner(s)
+        this.index = 0
+        this.len = s.length
+        this.current = s[0]
+        this.state = []
         this.decode()
     }
 
@@ -37,7 +36,7 @@ export class Decoder {
             // string
                 // this is currently not matching string that start
                 // with escape characters
-                const maybeString = this.scanner.scanString()
+                const maybeString = this.scanner.scanTo([])
                 const stringValue = new Types.JsonString(maybeString)
                 jsonData = stringValue
                 break
@@ -183,3 +182,4 @@ const tests = [
     emptyArray, totallyTrue, aString,
     aString, addSomeEscapes, emoticon, emptyString]
 tests.forEach((test) => {let vs = new Decoder(test)})
+*/
