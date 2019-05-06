@@ -88,7 +88,86 @@ class JsonString extends JsonValue {
 }
 
 class JsonNumber extends JsonValue {
-    validate() {}
+    validate() {
+        /*
+        laborous implementation inspired by golang
+
+        let isNumGreaterThanZero = new RegExp(/[1-9]/)
+        let isNum = new RegExp(/[0-9]/)
+        let nums = this.data
+
+        if (this.len === 0) {
+            //error
+            this.error = new Error('cannot create numeric value from empty string ' + this.data)
+        }
+        if (this.data[0] === '-') {
+            //negative numbers
+            nums = this.data.slice(1,)
+
+            if (nums === '') {
+                this.error = new Error('cannot create numeric value with dangling negative ' + this.data)
+            }
+        }
+        //fractions
+        if (this.data[0] === '0') {
+            nums = this.data.slice(1,)
+        }
+        if ((this.len >= 2) 
+            && (nums[0] === '.')
+            && (isNum.test(nums[1]))) {
+                nums = nums.slice(2,)
+                for (let i = 1; i < nums.length; i++) {
+                    if (isNum.test(nums[i])) {
+                        nums = nums.slice(1,)
+                    }
+                }
+            }
+        //integers
+        if (isNumGreaterThanZero.test(this.data[0])) {
+            nums = nums.slice(1,)
+            for (let i = 0; i < nums.length; i++) {
+                if (isNum.test(nums[i])) {
+                    nums = nums.slice(1,)
+                }
+            }
+        }
+        //scientific notation exponents
+        if ((this.len >= 2)
+            && ((nums[0] === 'e')
+                || nums[0] === 'E')) {
+                    nums = nums.slice(1,)
+                }
+                if ((nums[0] === '+')
+                    || nums[0] === '-') {
+                        nums = nums.slice(1,)
+                    }
+                    if (nums === '') {
+                        this.error = new Error('cannot create numeric value for ' + this.data)
+                    }
+                for (let i = 0; i < nums.length; i++) {
+                    if (isNum.test(nums[i])) {
+                        nums = nums.slice(1,)
+                    }
+                }
+        if (nums.length === 0) {
+            return this.data
+        } else {
+            this.error = new Error('cannot create numeric value for ' + this.data)
+        }
+        */
+
+       //cheater implementation here
+
+       if (this.data === 'EOF') {
+           this.error = new Error('cannot create numeric value from nothing')
+       }
+       let num = +this.data
+       if (isNaN(num)) {
+           this.error = new Error('cannot create numeric value for ' + this.data)
+       } else {
+           this.jsonData = num
+       }
+    }
 }
 
 export {JsonTrue, JsonFalse, JsonNull, JsonNumber, JsonString}

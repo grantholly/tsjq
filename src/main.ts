@@ -12,9 +12,36 @@ const stringTests = [
     escapedString, escapeCodes, unicodeCodePoint
 ]
 
-const tests = [
-    ...stringTests
+// number tests
+const oneHundred = 100
+const tenAndSome = 10.3
+const half = 0.5
+const sciHundred = 10e2
+const sciHundredE = 10E2
+const sciThousand = 10e+3
+const sciThousandE = 10E+3
+const sciSmallHundred = 10e-2
+const sciSmallHundredE = 10E-2
+const positiveNumbers = [
+    oneHundred, tenAndSome, half,
+    sciHundred, sciHundredE, sciThousand,
+    sciThousandE, sciSmallHundred, sciSmallHundredE
 ]
+const negativeNumbers = positiveNumbers.map(n => n * -1)
+
+let validNumbers = [
+    ...positiveNumbers, ...negativeNumbers
+].map(n => n.toString())
+
+const badNumbers = [
+    '', '-', 'ten', '1.0e', '1.0E', '0.3.2', '6e+10e'
+]
+
+const tests = [
+    ...validNumbers, ...badNumbers
+]
+
+console.log(tests)
 
 tests.forEach(t => {
     console.log('**********', t)

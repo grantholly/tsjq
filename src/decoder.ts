@@ -84,6 +84,17 @@ export class Decoder {
     }
     decodeNumber() {
         let jsonData: number
+        this.pushState(ScanStates.beginNumber)
+        const maybeNumber = this.scanner.current.concat(
+            this.scanner.scanToEnd()
+        )
+        const numberValue = new Types.JsonNumber(maybeNumber)
+        this.error = numberValue.errorState()
+        if (this.error === null) {
+            this.pushState(ScanStates.endNumber)
+        }
+        this.jsonData = numberValue
+        console.log(this.jsonData)
     }
     decodeBoolean() {
         let jsonData: boolean
