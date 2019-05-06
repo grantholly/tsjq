@@ -93,8 +93,7 @@ export class Decoder {
         if (this.error === null) {
             this.pushState(ScanStates.endNumber)
         }
-        this.jsonData = numberValue
-        console.log(this.jsonData)
+        this.jsonData = numberValue.extract()
     }
     decodeBoolean() {
         let jsonData: boolean
