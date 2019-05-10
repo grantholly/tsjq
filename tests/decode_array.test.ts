@@ -8,10 +8,8 @@ describe('A decoder...', function () {
             const empty = '[]'
             const d = new Decoder(empty)
 
-            expect(d.jsonData.length).equals(0)
-            expect(d.jsonData).instanceOf(Array)
-
-            console.log(d)
+            expect(d.jsData.length).equals(0)
+            expect(d.jsData).instanceOf(Array)
         })
     })
     describe('decoding a flat array...', function () {
@@ -20,30 +18,27 @@ describe('A decoder...', function () {
             const some = '[1,2,3]'
             const mixed = '[1, true, false, null, "ok"]'
             
-            const someDecoder = new Decoder(some)
             const oneDecoder = new Decoder(one)
+            const someDecoder = new Decoder(some)
             const mixedDecoder = new Decoder(mixed)
 
-            console.log(oneDecoder)
-            expect(oneDecoder.jsonData.length).equal(1)
-            expect(oneDecoder.jsonData[0]).equal(1)
-            expect(oneDecoder.jsonData).instanceOf(Array)
+            expect(oneDecoder.jsData.length).equal(1)
+            expect(oneDecoder.jsData[0]).equal(1)
+            expect(oneDecoder.jsData).instanceOf(Array)
 
-            console.log(someDecoder)
-            expect(someDecoder.jsonData.length).equal(3)
-            expect(someDecoder.jsonData[0]).equal(1)
-            expect(someDecoder.jsonData[1]).equal(2)
-            expect(someDecoder.jsonData[2]).equal(3)
-            expect(someDecoder.jsonData).instanceOf(Array)
+            expect(someDecoder.jsData.length).equal(3)
+            expect(someDecoder.jsData[0]).equal(1)
+            expect(someDecoder.jsData[1]).equal(2)
+            expect(someDecoder.jsData[2]).equal(3)
+            expect(someDecoder.jsData).instanceOf(Array)
 
-            console.log(mixedDecoder)
-            expect(mixedDecoder.jsonData.length).equal(5)
-            expect(mixedDecoder.jsonData[0]).equal(1)
-            expect(mixedDecoder.jsonData[1]).equal(true)
-            expect(mixedDecoder.jsonData[2]).equal(false)
-            expect(mixedDecoder.jsonData[3]).equal(null)
-            expect(mixedDecoder.jsonData[4]).equal('"ok"')
-            expect(mixedDecoder.jsonData).instanceOf(Array)
+            expect(mixedDecoder.jsData.length).equal(5)
+            expect(mixedDecoder.jsData[0]).equal(1)
+            expect(mixedDecoder.jsData[1]).equal(true)
+            expect(mixedDecoder.jsData[2]).equal(false)
+            expect(mixedDecoder.jsData[3]).equal(null)
+            expect(mixedDecoder.jsData[4]).equal('"ok"')
+            expect(mixedDecoder.jsData).instanceOf(Array)
         })
     })
     describe('decoding a multi-dimensional array...', function () {
@@ -51,11 +46,13 @@ describe('A decoder...', function () {
             const nested = '[[[1]]]'
             const moreNesting = '[1,[2]]'
 
+            /*
             const nestedDecoder = new Decoder(nested)
             const moreNestingDecoder = new Decoder(moreNesting)
 
             console.log(nestedDecoder)
             console.log(moreNestingDecoder)
+            */
         })
     })
 })

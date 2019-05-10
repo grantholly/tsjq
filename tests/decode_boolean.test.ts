@@ -8,16 +8,16 @@ describe('A decoder...', function () {
             const trueDecoder = new Decoder('true')
             const falseDecoder = new Decoder('false')
 
-            expect(falseDecoder.jsonData).equal(false)
-            expect(trueDecoder.jsonData).equal(true)
+            expect(falseDecoder.jsData).equal(false)
+            expect(trueDecoder.jsData).equal(true)
         })
 
         it('will error on any value except exactly "true" or "false"', function () {
             const falseDecoder = new Decoder('falsezzz')
             const trueDecoder = new Decoder('tRUE')
 
-            expect(falseDecoder.jsonData).instanceOf(Error)
-            expect(trueDecoder.jsonData).instanceOf(Error)
+            expect(falseDecoder.jsData).instanceOf(Error)
+            expect(trueDecoder.jsData).instanceOf(Error)
         })
 
         it('will error with any extra spaces or characters', function () {
@@ -29,8 +29,8 @@ describe('A decoder...', function () {
                 let falseDecoder = new Decoder(notFalse)
                 let trueDecoder = new Decoder(notTrue)
 
-                expect(falseDecoder.jsonData).instanceOf(Error)
-                expect(trueDecoder.jsonData).instanceOf(Error)
+                expect(falseDecoder.jsData).instanceOf(Error)
+                expect(trueDecoder.jsData).instanceOf(Error)
             }
         })
     })

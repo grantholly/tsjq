@@ -4,7 +4,7 @@ abstract class JsonValue {
     data: string
     len: number
     error: null | Error
-    jsonData: any
+    jsData: any
 
     constructor(s: string) {
         this.data = s
@@ -13,10 +13,10 @@ abstract class JsonValue {
         this.validate()
     }
 
-    abstract validate(): void
+    abstract validate(): any | null
 
-    extract(): any {
-        return this.error === null ? this.jsonData : this.error
+    extract(): any | Error {
+        return this.error === null ? this.jsData : this.error
     }
 
     errorState(): null | Error {
@@ -25,13 +25,13 @@ abstract class JsonValue {
 }
 
 class JsonArray extends JsonValue {
-    jsonData: Array<any>
+    jsData: Array<any>
 
     validate() {
         // empty array?
         if (this.len === 1 && this.data[this.len - 1] === ']') {
             console.log('RUNNING ON EMPTY')
-            this.jsonData = []
+            this.jsData = []
         }
         else if (this.data[this.len - 1] === '[') {
             // hit a nested array
@@ -41,20 +41,19 @@ class JsonArray extends JsonValue {
             // need to trim ']' char first
             this.data = this.data.slice(0, this.len - 1)
             // we reached the end of a flat array
-            this.jsonData = this.data.split(',')
-            for (let i = 0; i < this.jsonData.length; i++) {
+            this.jsData = this.data.split(',')
+            for (let i = 0; i < this.jsData.length; i++) {
                 // remove any spaces
-                let e: string = this.jsonData[i]
+                let e: string = this.jsData[i]
                 e = e.replace(/\s/gi, '')
                 // this creates a circular dependency with this
                 // module and the Decoder module
                 // further more, this decoder's state stack is lost
                 // and should be merged into the caller's state stack
                 let val = new Decoder(e)
-                this.jsonData[i] = val.jsonData
+                this.jsData[i] = val.jsData
             }
         }
-        console.log(this)
     }
 }
 
@@ -62,22 +61,60 @@ class JsonNull extends JsonValue {
    validate() {
        if (this.len !== 4) {
            this.error = new Error('cannot create null value.  Value too long ' + this.data)
+           return this.error
        }
        if ((this.data[0] === 'n')
             && (this.data[1] === 'u')
             && (this.data[2] === 'l')
             && (this.data[3] === 'l')) {
-                this.jsonData = null
+                this.jsData = null
+                return null
         } else {
             this.error = new Error('cannot create null from ' + this.data)
+            return this.error
         }
    }
 }
 
-abstract class JsonBoolean extends JsonValue {
-    jsonData: boolean
+class JsonBoolean extends JsonValue {
+    jsData: boolean
+
+    validate() {
+        switch(this.data[0]) {
+            case 't':
+                if (this.len !== 4) {
+                    this.error = new Error('cannot create true value.  Value too long ' + this.data)
+                }
+                if ((this.data[0] === 't')
+                    && (this.data[1] === 'r')
+                    && (this.data[2] === 'u')
+                    && (this.data[3] === 'e')) {
+                        this.jsData = true
+                } else {
+                    this.error = new Error('cannot create true value from ' + this.data)
+                }
+                break
+            case 'f':
+                if (this.len !== 5) {
+                    this.error = new Error('cannot create false value.  Value too long ' + this.data)
+                }
+                if ((this.data[0] === 'f')
+                    && (this.data[1] === 'a')
+                    && (this.data[2] === 'l')
+                    && (this.data[3] === 's')
+                    && (this.data[4] === 'e')) {
+                        this.jsData = false
+                } else {
+                    this.error = new Error('cannot create false value from ' + this.data)
+                }
+                break
+            default:
+                this.error = new Error('cannot create boolean value from ' + this.data)
+        }
+    }
 }
 
+/*
 class JsonTrue extends JsonBoolean {
     validate() {
         if (this.len !== 4) {
@@ -87,7 +124,7 @@ class JsonTrue extends JsonBoolean {
             && (this.data[1] === 'r')
             && (this.data[2] === 'u')
             && (this.data[3] === 'e')) {
-                this.jsonData = true
+                this.jsData = true
         } else {
             this.error = new Error('cannot create true value from ' + this.data)
         }
@@ -104,15 +141,16 @@ class JsonFalse extends JsonBoolean {
             && (this.data[2] === 'l')
             && (this.data[3] === 's')
             && (this.data[4] === 'e')) {
-                this.jsonData = false
+                this.jsData = false
         } else {
             this.error = new Error('cannot create true value from ' + this.data)
         }
     }
 }
+*/
 
 class JsonString extends JsonValue {
-    jsonData: string
+    jsData: string
 
     validate() {
        if (this.len <= 1) {
@@ -120,7 +158,7 @@ class JsonString extends JsonValue {
        }
        if (this.data[0] === '"'
             && this.data[this.len - 1] === '"') {
-                this.jsonData = this.data
+                this.jsData = this.data
             } else {
                 this.error = new Error('cannot create string value with unbalanced quotes from ' + this.data)
             }
@@ -128,7 +166,7 @@ class JsonString extends JsonValue {
 }
 
 class JsonNumber extends JsonValue {
-    jsonData: number
+    jsData: number
 
     validate() {
         /*
@@ -207,9 +245,9 @@ class JsonNumber extends JsonValue {
        if (isNaN(num)) {
            this.error = new Error('cannot create numeric value for ' + this.data)
        } else {
-           this.jsonData = num
+           this.jsData = num
        }
     }
 }
 
-export {JsonTrue, JsonFalse, JsonNull, JsonNumber, JsonString, JsonArray}
+export {JsonBoolean, JsonNull, JsonNumber, JsonString, JsonArray, JsonValue}

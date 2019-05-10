@@ -55,4 +55,8 @@ export class Scanner {
     scanToEnd(skipSpaces: boolean = false): string {
         return this.scanTo([], skipSpaces)
     }
+
+    scanValue(skipSpaces: boolean = false) {
+        return this.scanTo([':', ',', ']', '}'], skipSpaces)
+    }
 }
