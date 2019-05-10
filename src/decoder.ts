@@ -45,15 +45,33 @@ export class Decoder {
         }
     }
 
-    decodeObject() {
-        let jsonData = {}
+    decodeObject(jsonData: Object = {}) {
         //scan value from scanner
     }
     decodeArray() {
-        let jsonData = []
-        //scan value from scanner
+        this.pushState(ScanStates.beginArray)
+        /*
+        // scan to a nested array or end of current array
+        const beginOrEnd = this.scanner.scanTo(['[', ']'])
+        console.log('--- scanned value:', beginOrEnd)
+        const maybeArray = this.scanner.current.concat(
+            this.scanner.scanTo(['[', ']'])
+        )
+        const arrayValue = new Types.JsonArray(maybeArray)
+        this.error = arrayValue.errorState()
+        if (this.error === null) {
+            this.pushState(ScanStates.endArray)
+        }
+        this.jsonData = arrayValue.extract()
+        */
+       const beginOrEnd = this.scanner.scanTo(['[', ']']).concat(
+           this.scanner.current
+       )
+       this.jsonData = new Types.JsonArray(beginOrEnd).extract()
+       this.pushState(ScanStates.endArray)
     }
     decodeLiteral() {
+        console.log(this.scanner)
         switch(this.scanner.current) {
             case '"':
                 this.decodeString()
@@ -80,7 +98,7 @@ export class Decoder {
         if (this.error === null) {
             this.pushState(ScanStates.endString)
         }
-        this.jsonData = stringValue
+        this.jsonData = stringValue.extract()
     }
     decodeNumber() {
         let jsonData: number

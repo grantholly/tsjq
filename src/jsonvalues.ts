@@ -1,3 +1,5 @@
+import { Decoder } from "./decoder";
+
 abstract class JsonValue {
     data: string
     len: number
@@ -22,6 +24,41 @@ abstract class JsonValue {
     }
 }
 
+class JsonArray extends JsonValue {
+    jsonData: Array<any>
+
+    validate() {
+        // empty array?
+        if (this.len === 1 && this.data[this.len - 1] === ']') {
+            console.log('RUNNING ON EMPTY')
+            this.jsonData = []
+        }
+        else if (this.data[this.len - 1] === '[') {
+            // hit a nested array
+            console.log('RUNNING HIGH')
+        } else {
+            console.log('RUNNING LOW')
+            // need to trim ']' char first
+            this.data = this.data.slice(0, this.len - 1)
+            // we reached the end of a flat array
+            this.jsonData = this.data.split(',')
+            for (let i = 0; i < this.jsonData.length; i++) {
+                // remove any spaces
+                let e: string = this.jsonData[i]
+                e = e.replace(/\s/gi, '')
+                console.log(e)
+                // this creates a circular dependency with this
+                // module and the Decoder module
+                // further more, this decoder's state stack is lost
+                // and should be merged into the caller's state stack
+                let val = new Decoder(e)
+                this.jsonData[i] = val.jsonData
+            }
+        }
+        console.log(this)
+    }
+}
+
 class JsonNull extends JsonValue {
    validate() {
        if (this.len !== 4) {
@@ -38,7 +75,9 @@ class JsonNull extends JsonValue {
    }
 }
 
-abstract class JsonBoolean extends JsonValue {}
+abstract class JsonBoolean extends JsonValue {
+    jsonData: boolean
+}
 
 class JsonTrue extends JsonBoolean {
     validate() {
@@ -74,6 +113,8 @@ class JsonFalse extends JsonBoolean {
 }
 
 class JsonString extends JsonValue {
+    jsonData: string
+
     validate() {
        if (this.len <= 1) {
            this.error = new Error('cannot create string value with length <= 1 from ' + this.data)
@@ -88,6 +129,8 @@ class JsonString extends JsonValue {
 }
 
 class JsonNumber extends JsonValue {
+    jsonData: number
+
     validate() {
         /*
         laborous implementation inspired by golang
@@ -170,4 +213,4 @@ class JsonNumber extends JsonValue {
     }
 }
 
-export {JsonTrue, JsonFalse, JsonNull, JsonNumber, JsonString}
+export {JsonTrue, JsonFalse, JsonNull, JsonNumber, JsonString, JsonArray}
