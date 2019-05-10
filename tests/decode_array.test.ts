@@ -43,6 +43,7 @@ describe('A decoder...', function () {
             expect(mixedDecoder.jsonData[2]).equal(false)
             expect(mixedDecoder.jsonData[3]).equal(null)
             expect(mixedDecoder.jsonData[4]).equal('"ok"')
+            expect(mixedDecoder.jsonData).instanceOf(Array)
         })
     })
     describe('decoding a multi-dimensional array...', function () {

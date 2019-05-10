@@ -32,62 +32,59 @@ export class Decoder {
     }
 
     decode() {
-        this.scanner.scan()
-        switch (this.scanner.current) {
+        const begin = this.scanner.scan()
+        switch (begin) {
             case '{':
-                this.decodeObject()
+                this.decodeObject(begin)
                 break
             case '[':
-                this.decodeArray()
+                this.decodeArray(begin)
                 break
             default:
-                this.decodeLiteral()
+                this.decodeLiteral(begin)
         }
     }
 
-    decodeObject(jsonData: Object = {}) {
+    decodeObject(obj: string | Object = {}) {
         //scan value from scanner
     }
-    decodeArray() {
+    decodeArray(arr: string | Array<any> = []) {
         this.pushState(ScanStates.beginArray)
-        /*
-        // scan to a nested array or end of current array
-        const beginOrEnd = this.scanner.scanTo(['[', ']'])
-        console.log('--- scanned value:', beginOrEnd)
-        const maybeArray = this.scanner.current.concat(
-            this.scanner.scanTo(['[', ']'])
+        const beginOrEnd = this.scanner.scanTo(['[', ']']).concat(
+            this.scanner.current
         )
-        const arrayValue = new Types.JsonArray(maybeArray)
-        this.error = arrayValue.errorState()
-        if (this.error === null) {
-            this.pushState(ScanStates.endArray)
+        const scalars = beginOrEnd[beginOrEnd.length - 1]
+        if (this.scanner.current === ']') {
+            // end of array
+            const elements = scalars.split(',')
+            for (let i = 0; i < elements.length; i++) {
+                let decodedElement = this.decodeLiteral(elements[i])
+            }
         }
-        this.jsonData = arrayValue.extract()
-        */
-       const beginOrEnd = this.scanner.scanTo(['[', ']']).concat(
-           this.scanner.current
-       )
-       this.jsonData = new Types.JsonArray(beginOrEnd).extract()
-       this.pushState(ScanStates.endArray)
+        if (this.scanner.current === '[') {
+            // nested array
+            this.pushState(ScanStates.beginArray)
+        }
+        //this.jsonData = new Types.JsonArray(beginOrEnd).extract()
+        this.pushState(ScanStates.endArray)
     }
-    decodeLiteral() {
-        console.log(this.scanner)
-        switch(this.scanner.current) {
+    decodeLiteral(val: string = '') {
+        switch(val) {
             case '"':
-                this.decodeString()
+                this.decodeString(val)
                 break
             case 't':
             case 'f':
-                this.decodeBoolean()
+                this.decodeBoolean(val)
                 break
             case 'n':
-                this.decodeNull()
+                this.decodeNull(val)
                 break
             default:
-                this.decodeNumber()
+                this.decodeNumber(val)
         }
     }
-    decodeString() {
+    decodeString(s: string = '""') {
         let jsonData: string
         this.pushState(ScanStates.beginString)
         const maybeString = this.scanner.current.concat(
@@ -100,7 +97,7 @@ export class Decoder {
         }
         this.jsonData = stringValue.extract()
     }
-    decodeNumber() {
+    decodeNumber(n: string = '') {
         let jsonData: number
         this.pushState(ScanStates.beginNumber)
         const maybeNumber = this.scanner.current.concat(
@@ -113,7 +110,7 @@ export class Decoder {
         }
         this.jsonData = numberValue.extract()
     }
-    decodeBoolean() {
+    decodeBoolean(b: string = '') {
         let jsonData: boolean
         this.pushState(ScanStates.beginBoolean)
         switch(this.scanner.current) {
@@ -155,7 +152,7 @@ export class Decoder {
                 console.error('cannot decode value for ' + this.data)
         }
     }
-    decodeNull() {
+    decodeNull(n: string = '') {
         let jsonData: null
         // 'n' has been scanned
         this.pushState(ScanStates.beginNull)

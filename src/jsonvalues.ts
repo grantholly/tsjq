@@ -46,7 +46,6 @@ class JsonArray extends JsonValue {
                 // remove any spaces
                 let e: string = this.jsonData[i]
                 e = e.replace(/\s/gi, '')
-                console.log(e)
                 // this creates a circular dependency with this
                 // module and the Decoder module
                 // further more, this decoder's state stack is lost
