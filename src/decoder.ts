@@ -1,156 +1,100 @@
-import { Scanner } from "./scanner";
-import { ScanStates } from "./sure";
-import  * as Types from "./jsonvalues";
+import { Scanner } from './scanner'
+import { ScanStates } from './sure'
+import { StateStack } from './state_stack'
+import * as Types from './jsonvalues'
 
 export class Decoder {
     data: string
     scanner: Scanner
-    index: number
-    state: Array<ScanStates>
+    state: StateStack
     error: null | Error
-    jsonData: any
+    jsData: any
 
     constructor(data: string) {
         this.data = data
         this.scanner = new Scanner(data)
-        this.index = this.scanner.scanned
-        this.state = []
+        this.state = new StateStack()
         this.error = null
         this.decode()
     }
 
-    pushState(s: ScanStates): void {
-        this.state.push(s)
-    }
-
-    popState(): ScanStates | undefined {
-        return this.state.pop()
-    }
-
-    peekState(): ScanStates {
-        return this.state[this.state.length]
-    }
-
     decode() {
-        this.scanner.scan()
-        switch (this.scanner.current) {
+        this.jsData = this.decodeValue(this.data)
+        console.log(this)
+    }
+
+    decodeValue(val: string) {
+        if ( ! (this.state.scanningArray()
+            || this.state.scanningObject())) {
+            val = this.scanner.scan()
+        }
+        switch(val) {
             case '{':
-                this.decodeObject()
-                break
+                return this.decodeObject(val)
             case '[':
-                this.decodeArray()
-                break
+                return this.decodeArray(val)
             default:
-                this.decodeLiteral()
+                return this.decodeLiteral(val)
         }
     }
 
-    decodeObject() {
-        let jsonData = {}
-        //scan value from scanner
+    decodeObject(obj: string | Object = {}) {
+        this.state.pushState(ScanStates.beginObject)
     }
-    decodeArray() {
-        let jsonData = []
-        //scan value from scanner
-    }
-    decodeLiteral() {
+
+    decodeArray(arr: string | Array<any> = []) {
+        this.state.pushState(ScanStates.beginArray)
+        const beginOrEnd: string = this.scanner.scanTo(
+            ['[', '{', ']']
+        )
         switch(this.scanner.current) {
+            case '{':
+                // decode an object
+            case '[':
+                // time to recurse
+            case ']':
+                // flat array
+                // check for empty
+                if (beginOrEnd.length === 0) {
+                    this.state.pushState(ScanStates.endArray)
+                    return []
+                } else {
+                    const vals: Array<string> = beginOrEnd.split(',')
+                    let arr: Array<any> = []
+                    for (let i = 0; i < vals.length; i++) {
+                        let e: any = this.decodeValue(vals[i])
+                        arr.push(e)
+                    }
+                    this.state.pushState(ScanStates.endArray)
+                    return arr
+                }
+            default:
+                this.error = new Error('cannot decode array')
+        }
+    }
+
+    decodeLiteral(val: string) {
+        // check if we are in a composite type
+        if ( ! (this.state.scanningArray()
+            || this.state.scanningObject())) {
+            val = this.scanner.current.concat(
+                this.scanner.scanValue()
+            )
+        }
+        switch(val[0]) {
             case '"':
-                this.decodeString()
-                break
+                this.state.pushState(ScanStates.scanString)
+                return new Types.JsonString(val).extract()
             case 't':
             case 'f':
-                this.decodeBoolean()
-                break
+                this.state.pushState(ScanStates.scanBoolean)
+                return new Types.JsonBoolean(val).extract()
             case 'n':
-                this.decodeNull()
-                break
+                this.state.pushState(ScanStates.scanNull)
+                return new Types.JsonNull(val).extract()
             default:
-                this.decodeNumber()
+                this.state.pushState(ScanStates.scanNumber)
+                return new Types.JsonNumber(val).extract()
         }
-    }
-    decodeString() {
-        let jsonData: string
-        this.pushState(ScanStates.beginString)
-        const maybeString = this.scanner.current.concat(
-            this.scanner.scanToEnd()
-        )
-        const stringValue = new Types.JsonString(maybeString)
-        this.error = stringValue.errorState()
-        if (this.error === null) {
-            this.pushState(ScanStates.endString)
-        }
-        this.jsonData = stringValue
-    }
-    decodeNumber() {
-        let jsonData: number
-        this.pushState(ScanStates.beginNumber)
-        const maybeNumber = this.scanner.current.concat(
-            this.scanner.scanToEnd()
-        )
-        const numberValue = new Types.JsonNumber(maybeNumber)
-        this.error = numberValue.errorState()
-        if (this.error === null) {
-            this.pushState(ScanStates.endNumber)
-        }
-        this.jsonData = numberValue.extract()
-    }
-    decodeBoolean() {
-        let jsonData: boolean
-        this.pushState(ScanStates.beginBoolean)
-        switch(this.scanner.current) {
-            case 't':
-            /* 
-            refactor this into a single method like
-            tryType[T](type: T, data: string): JsonValue {
-                const maybeJson = this.scanner.current.concat(
-                    this.scanner.scanToEnd()
-                )
-                const jsonVal = new type(maybeJson)
-                if (jsonVal.error === null) {
-                    this.pushState(ScanState['end' + type.asString()])
-                }
-            }
-            */
-                const maybeTrue = this.scanner.current.concat(
-                    this.scanner.scanToEnd()
-                )
-                const trueValue = new Types.JsonTrue(maybeTrue)
-                this.error = trueValue.errorState()
-                if (this.error === null) {
-                    this.pushState(ScanStates.endBoolean)
-                }
-                this.jsonData = trueValue.extract()
-                break
-            case 'f':
-                const maybeFalse = this.scanner.current.concat(
-                    this.scanner.scanToEnd()
-                )
-                const falseValue = new Types.JsonFalse(maybeFalse)
-                this.error = falseValue.errorState()
-                if (this.error === null) {
-                    this.pushState(ScanStates.endBoolean)
-                }
-                this.jsonData = falseValue.extract()
-                break
-            default:
-                console.error('cannot decode value for ' + this.data)
-        }
-    }
-    decodeNull() {
-        let jsonData: null
-        // 'n' has been scanned
-        this.pushState(ScanStates.beginNull)
-        // scan to the end of the value looking for
-        // 'ull' and concat with the current
-        const maybeNull = this.scanner.current.concat(
-            this.scanner.scanToEnd()
-        )
-        const nullValue = new Types.JsonNull(maybeNull)
-        this.error = nullValue.errorState()
-        if (this.error === null) {
-            this.pushState(ScanStates.endNull)
-        }
-        this.jsonData = nullValue.extract()
     }
 }

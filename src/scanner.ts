@@ -30,18 +30,6 @@ export class Scanner {
         }
     }
 
-    scanNum(howMany: number): string {
-        let val = ''
-        while (howMany > 0) {
-            if (! this.done()) {
-                howMany --
-                let char = this.scan()
-                val = val.concat(char)
-            }
-        }
-        return val
-    }
-
     scanTo(chars: Array<string>, 
             skipSpaces: boolean = false): string {
         let val = ''
@@ -67,32 +55,8 @@ export class Scanner {
     scanToEnd(skipSpaces: boolean = false): string {
         return this.scanTo([], skipSpaces)
     }
-    
-    // maybe I need a method to scan until hitting a
-    // non-space char
-    scanToNext(): void {
-        let scanning = true
-        while (scanning) {
-            if (! this.done()) {
-                let char = this.scan()
-                if (this.isSpace(char)) {
-                    continue
-                } else {
-                    scanning = false
-                }
-            }
-        }
-    }
 
-    isSpace(char: string | void): boolean {
-        switch(char) {
-            case ' ':
-            case '\t':
-            case '\r':
-            case '\n':
-                return true
-            default:
-                return false
-        }
+    scanValue(skipSpaces: boolean = false) {
+        return this.scanTo([':', ',', ']', '}'], skipSpaces)
     }
 }
