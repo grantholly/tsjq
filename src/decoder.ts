@@ -1,26 +1,25 @@
 import { Scanner } from './scanner'
 import { ScanStates } from './sure'
-import { StateStack } from './state_stack'
+import { ScannerState } from './scanner_state'
 import * as Types from './jsonvalues'
 
 export class Decoder {
     data: string
     scanner: Scanner
-    state: StateStack
+    state: ScannerState
     error: null | Error
     jsData: any
 
     constructor(data: string) {
         this.data = data
         this.scanner = new Scanner(data)
-        this.state = new StateStack()
+        this.state = new ScannerState()
         this.error = null
         this.decode()
     }
 
     decode() {
         this.jsData = this.decodeValue(this.data)
-        console.log(this)
     }
 
     decodeValue(val: string) {

@@ -1,6 +1,6 @@
 import { ScanStates } from './sure'
 
-export class StateStack {
+export class ScannerState {
     state: Array<ScanStates>
 
     constructor() {
@@ -19,7 +19,7 @@ export class StateStack {
         return s
     }
 
-    peekState(): ScanStates {
+    peek(): ScanStates {
         if (this.state.length === 0) {
             return ScanStates.endScan
         }

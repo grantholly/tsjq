@@ -6,10 +6,10 @@ describe('A decoder...', function () {
     describe('decoding an empty array...', function () {
         it('decodes an empty array', function () {
             const empty = '[]'
-            const d = new Decoder(empty)
+            const emptyDecoder = new Decoder(empty)
 
-            expect(d.jsData.length).equals(0)
-            expect(d.jsData).instanceOf(Array)
+            expect(emptyDecoder.jsData.length).equals(0)
+            expect(emptyDecoder.jsData).instanceOf(Array)
         })
     })
     describe('decoding a flat array...', function () {
