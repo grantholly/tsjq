@@ -11,24 +11,14 @@ export class Pair {
 }
 
 export enum ScanStates {
-    beginString = 'beginString',
-    beginNumber = 'beginNumber',
+    scanString = 'beginString',
+    scanNumber = 'scanNumber',
     beginObject = 'beginObject',
-    beginObjectKey = 'beginObjectKey',
-    beginObjectValue = 'beginObjectvalue',
     beginArray = 'beginArray',
-    beginArrayValue = 'beginArrayValue',
-    beginBoolean = 'beginBoolean',
-    beginNull = 'beginNull',
-    endString = 'endString',
-    endNumber = 'endNumber',
-    endBoolean = 'endBoolean',
-    endNull = 'endNull',
+    scanBoolean = 'scanBoolean',
+    scanNull = 'scanNull',
     endObject = 'endObject',
-    endObjectKey = 'endObjectKey',
-    endObjectValue = 'endObjectValue',
     endArray = 'endArray',
-    endArrayValue = 'endArrayValue',
     endScan = 'endScan',
     skip = 'skip',
 }
