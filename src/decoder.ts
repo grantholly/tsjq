@@ -79,7 +79,6 @@ export class Decoder {
                         } else {
                             element = vals[i]
                         }
-                        console.log(element)
                         let decodedElement: any = this.decodeValue(element)
                         a.push(decodedElement)
                     }
