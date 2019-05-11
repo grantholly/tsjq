@@ -62,8 +62,9 @@ export class Decoder {
                     const vals: Array<string> = beginOrEnd.split(',')
                     let arr: Array<any> = []
                     for (let i = 0; i < vals.length; i++) {
-                        let e: any = this.decodeValue(vals[i])
-                        arr.push(e)
+                        let element: string = vals[i].replace(/\s/gi, '')
+                        let decodedElement: any = this.decodeValue(element)
+                        arr.push(decodedElement)
                     }
                     this.state.pushState(ScanStates.endArray)
                     return arr
