@@ -46,13 +46,8 @@ describe('A decoder...', function () {
             const nested = '[[[1]]]'
             const moreNesting = '[1,[2]]'
 
-            /*
-            const nestedDecoder = new Decoder(nested)
-            const moreNestingDecoder = new Decoder(moreNesting)
-
-            console.log(nestedDecoder)
-            console.log(moreNestingDecoder)
-            */
+            //const nestedDecoder = new Decoder(nested)
+            //const moreNestingDecoder = new Decoder(moreNesting)
         })
     })
 })
