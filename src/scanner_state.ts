@@ -26,6 +26,10 @@ export class ScannerState {
         return this.state[this.state.length - 1]
     }
 
+    get(): Array<ScanStates> {
+        return this.state
+    }
+
     insideCompoundType(beginState: ScanStates,
         endState: ScanStates): boolean {
         // count the number of beginStates and endStates

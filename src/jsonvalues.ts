@@ -1,5 +1,3 @@
-import { Decoder } from "./decoder";
-
 abstract class JsonValue {
     data: string
     len: number
@@ -34,17 +32,14 @@ class JsonNull extends JsonValue {
    validate() {
        if (this.len !== 4) {
            this.error = new Error('cannot create null value.  Value too long ' + this.data)
-           return this.error
        }
        if ((this.data[0] === 'n')
             && (this.data[1] === 'u')
             && (this.data[2] === 'l')
             && (this.data[3] === 'l')) {
                 this.jsData = null
-                return null
         } else {
             this.error = new Error('cannot create null from ' + this.data)
-            return this.error
         }
    }
 }

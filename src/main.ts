@@ -37,11 +37,23 @@ const badNumbers = [
     '', '-', 'ten', '1.0e', '1.0E', '0.3.2', '6e+10e'
 ]
 
-const tests = [
-    ...validNumbers, ...badNumbers
+const arrayTests = [
+    '[]', '[1]', '[1,2]', '["all about it", true, false, .5, null]',
+    '[ "ok",      "sure about that?" ]', '         [11]',
+    '[[1]]', '[ 1, [2, "two"], [], ["three", "four"] ]',
+    `[
+        1,
+        false,
+        [
+            2,
+            true
+        ]
+    ]`
 ]
 
-console.log(tests)
+const tests = [arrayTests[4]]
+
+//console.log(tests)
 
 tests.forEach(t => {
     console.log('**********', t)

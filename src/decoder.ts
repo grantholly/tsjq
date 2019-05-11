@@ -10,9 +10,9 @@ export class Decoder {
     error: null | Error
     jsData: any
 
-    constructor(data: string) {
-        this.data = data
-        this.scanner = new Scanner(data)
+    constructor(jsonData: string) {
+        this.data = jsonData
+        this.scanner = new Scanner(jsonData)
         this.state = new ScannerState()
         this.error = null
         this.decode()
@@ -51,6 +51,18 @@ export class Decoder {
                 // decode an object
             case '[':
                 // time to recurse
+                const vals: Array<string> = beginOrEnd.split(',')
+                // check for [[]]
+                if (vals[0] === '') {
+                    const nextArray: string = this.scanner.scanTo(['[', ']'])
+                    return [this.decodeArray(nextArray)]
+                }
+                let a: Array<any> = []
+                for ( let i = 0; i < vals.length; i++) {
+                    let element: string = vals[i].replace(/\s/gi, '')
+                    let decodedElement: any = this.decodeValue(element)
+                    a.push(decodedElement)
+                }
             case ']':
                 // flat array
                 // check for empty
@@ -59,14 +71,20 @@ export class Decoder {
                     return []
                 } else {
                     const vals: Array<string> = beginOrEnd.split(',')
-                    let arr: Array<any> = []
+                    let a: Array<any> = []
                     for (let i = 0; i < vals.length; i++) {
-                        let element: string = vals[i].replace(/\s/gi, '')
+                        let element: string
+                        if (! (vals[i][0] === '"')) {
+                            element = vals[i].replace(/\s/gi, '')
+                        } else {
+                            element = vals[i]
+                        }
+                        console.log(element)
                         let decodedElement: any = this.decodeValue(element)
-                        arr.push(decodedElement)
+                        a.push(decodedElement)
                     }
                     this.state.pushState(ScanStates.endArray)
-                    return arr
+                    return a
                 }
             default:
                 this.error = new Error('cannot decode array')

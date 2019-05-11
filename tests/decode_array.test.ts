@@ -43,11 +43,13 @@ describe('A decoder...', function () {
     })
     describe('decoding a multi-dimensional array...', function () {
         it('decodes nested arrays', function () {
-            const nested = '[[[1]]]'
+            const nested = '[ [ 1 ] ]'
             const moreNesting = '[1,[2]]'
 
-            //const nestedDecoder = new Decoder(nested)
+            const nestedDecoder = new Decoder(nested)
             //const moreNestingDecoder = new Decoder(moreNesting)
+
+            //console.log(moreNestingDecoder)
         })
     })
 })
