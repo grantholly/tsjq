@@ -60,7 +60,7 @@ const badNumbers = [
 ]
 
 const tests = [
-    ...boolTests, ...nullTests
+    ...validNumbers
 ]
 
 export const decode = function(json: string): any {
@@ -72,7 +72,9 @@ export const encode = function(jsData: any): string {
     return ''
 }
 
+
 tests.forEach(t => {
     console.log(decode(t))
 })
+
 //decode('{"a": 1, "b": null, "c": ["first value"]}')

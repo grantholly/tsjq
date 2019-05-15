@@ -25,8 +25,6 @@ abstract class JsonValue {
 }
 
 class JsonArray extends JsonValue {
-    jsData: Array<any>
-
     validate() {}
 }
 
@@ -50,8 +48,6 @@ class JsonNull extends JsonValue {
 }
 
 class JsonBoolean extends JsonValue {
-    jsData: boolean
-
     validate() {
         switch(this.data[0]) {
             case 't':
@@ -88,8 +84,6 @@ class JsonBoolean extends JsonValue {
 }
 
 class JsonString extends JsonValue {
-    jsData: string
-
     validate() {
        if (this.len <= 1) {
            this.error = new Error('cannot create string value with length <= 1 from ' + this.data)
@@ -104,8 +98,6 @@ class JsonString extends JsonValue {
 }
 
 class JsonNumber extends JsonValue {
-    jsData: number
-
     validate() {
        if (this.data === 'EOF') {
            this.error = new Error('cannot create numeric value from nothing')
