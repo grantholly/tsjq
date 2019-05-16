@@ -61,8 +61,19 @@ const badNumbers = [
     '', '-', 'ten', '1.0e', '1.0E', '0.3.2', '6e+10e'
 ]
 
+// array tests
+const emptyArray = ' [  ] '
+const singleVal = ' [  1]'
+const twoVals = '["yeah", true]'
+const threeVals = '[null,false,[] ]'
+const fourVals = '[[1,2], {"ok": true}, null]'
+const arrayTests = [
+    emptyArray, singleVal, twoVals, 
+    threeVals, fourVals
+]
+
 const tests = [
-    ...stringTests
+    ...arrayTests
 ]
 
 export const decode = function(json: string): any {
@@ -73,7 +84,6 @@ export const decode = function(json: string): any {
 export const encode = function(jsData: any): string {
     return ''
 }
-
 
 tests.forEach(t => {
     console.log(decode(t))

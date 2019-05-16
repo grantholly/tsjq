@@ -1,4 +1,5 @@
-/*
+import { JsonValue } from "./jsonvalues";
+
 type JsValue = null | number | string | boolean | JsObject | JsArray
 
 interface JsObject {
@@ -6,14 +7,6 @@ interface JsObject {
 }
 
 interface JsArray extends Array<JsValue> {}
-*/
-
-type JSValue = { kind: 'JSNull' }
-             | { kind: 'JSBool',     value: boolean }
-             | { kind: 'JSString',   value: string  }
-             | { kind: 'JSRational', asFloat: boolean, value: number }
-             | { kind: 'JSArray',    value: JSValue[] }
-             | { kind: 'JSObject',   value: { [key: string]: JSValue } }
 
 export class Decoder {
     idx: number
@@ -64,7 +57,7 @@ export class Decoder {
             }
     }
 
-    decodeValue() {
+    decodeValue(): JsValue {
         this.skip()
         switch(this.current) {
             case '{':
@@ -90,10 +83,40 @@ export class Decoder {
         }
     }
 
-    decodeObject() {}
-    decodeArray() {}
-    
-    decodeString() {
+    decodeObject(): JsObject {
+        console.log('object time!!!!!!')
+        return {
+            'ok': 1
+        }
+    }
+
+    decodeArray(): JsArray {
+        let maybeArray: JsArray = []
+        if (this.current === '[') {
+            this.scanChar('[')
+            this.skip()
+            let empty: string = this.current
+            // check for empty array
+            if (empty === ']') {
+                return maybeArray
+            }
+            while (this.current) {
+                // try to decode a value
+                maybeArray.push(this.decodeValue())
+                this.skip()
+                // check for end of array
+                empty = this.current
+                if (empty === ']') {
+                    return maybeArray
+                }
+                this.scanChar(',')
+                this.skip()
+            }
+        }
+        this.err('Array Decoding Error', 'Unbalanced square brackets')
+    }
+
+    decodeString(): string {
         const checkUnicode = ():string => {
             let codepoints: string = ''
             for (let i = 0; i < 4; i++) {
