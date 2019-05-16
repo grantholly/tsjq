@@ -92,7 +92,55 @@ export class Decoder {
 
     decodeObject() {}
     decodeArray() {}
-    decodeString() {}
+    
+    decodeString() {
+        const checkUnicode = ():string => {
+            let codepoints: string = ''
+            for (let i = 0; i < 4; i++) {
+                let char:string = this.scan()
+                if (! (isNaN(parseInt(char, 16)))) {
+                        return codepoints
+                    } else {
+                        this.err('Unicode Decoding Error', 'cannot decode unicode value')
+                    }
+            }
+            
+        }
+        const escapes: {
+            [key: string]: string
+        } = {
+            '\"': '\"',
+            '\\': '\\',
+            '/': '/',
+            'b': '\b',
+            'f': '\f',
+            'n': '\n',
+            'r': '\r',
+            't': '\t',
+        }
+        let maybeString: string = ''
+        if (this.current === '\"') {
+            while (this.scan()) {
+                if (this.current === '\"') {
+                    this.scan()
+                    // empty string
+                    return maybeString
+                }
+                // watch out for escape characters
+                if (this.current === '\\') {
+                    this.scan()
+                    if (this.current === 'u') {
+                        // check for valid unicode
+                        maybeString += checkUnicode()
+                    }
+                    maybeString += escapes[this.current]
+                }
+                maybeString += this.current
+            }
+        }
+        return maybeString
+    }
+
     decodeNumber(): number {
         let maybeNum: string = ''
         let num: number
