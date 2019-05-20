@@ -32,9 +32,9 @@ describe('A decoder...', function () {
     })
     describe('decoding a multi-dimensional array...', function () {
         it('decodes nested arrays', function () {
-            const nestedArray = '[1, [ 2 ], [[]]]'
+            const nestedArray: string = '[1, [ 2 ], [[]]]'
 
-            const nestedArrayDecoder = decode(nestedArray)
+	    const nestedArrayDecoder: Array<any> = decode(nestedArray)
 
             expect(nestedArrayDecoder.length).equal(3)
             expect(nestedArrayDecoder[1]).instanceOf(Array)
@@ -46,11 +46,11 @@ describe('A decoder...', function () {
 
         it('handles arrays with anonymous object elements', function () {
             it('decodes object elements', function () {
-                const anonymousObjects = '[{"a": 1}, {"a": 2}]'
+                const anonymousObjects: string = '[{"a": 1}, {"a": 2}]'
 
-                const anonymousObjectsDecoder = decode(anonymousObjects)
-                const first = anonymousObjectsDecoder[0]
-                const second = anonymousObjectsDecoder[1]
+		const anonymousObjectsDecoder: Array<any> = decode(anonymousObjects)
+                const first: object = anonymousObjectsDecoder[0]
+                const second: object = anonymousObjectsDecoder[1]
 
                 expect(anonymousObjectsDecoder.length).equal(2)
                 expect(first).instanceOf(Object)
