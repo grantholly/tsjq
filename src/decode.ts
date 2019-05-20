@@ -1,5 +1,4 @@
-import { JsonValue } from "./jsonvalues";
-
+/*
 type JsValue = null | number | string | boolean | JsObject | JsArray
 
 interface JsObject {
@@ -8,17 +7,24 @@ interface JsObject {
 
 interface JsArray extends Array<JsValue> {}
 
-export class Decoder {
+type jsv = {kind: 'JsNull'}
+    | {kind: 'JsBool', value: boolean}
+    | {kind: 'JsString', value: string}
+    | {kind: 'JsNumber', asFloat: boolean, value: number}
+    | {kind: 'JsArray', value: Array<jsv>}
+    | {kind: 'JsObject', value: { [key: string]: jsv }}
+
+*/
+
+class Decoder {
     idx: number
-    end: number
     json: string
     current: string
 
     constructor(json: string) {
         this.idx = 0
-        this.end = json.length
         this.json = json
-        this.current = json.charAt(this.idx)
+        this.current = ' '
     }
 
     err(kind: string, message: string): Error {
@@ -34,20 +40,17 @@ export class Decoder {
     }
 
     scan(): string {
-        this.idx ++
         this.current = this.json.charAt(this.idx)
+        this.idx ++
         return this.current
     }
 
     scanChar(char: string): string {
         if ((char) 
-            && (char === this.current)) {
-                this.idx ++
-                this.current = this.json.charAt(this.idx)
-                return this.current
-        } else {
-            this.err('Scanning Error', 'expected: <' + char +'> but found <' + this.current + '>')
+            && (char !== this.current)) {
+                this.err('Scanning Error', 'expected: <' + char +'> but found <' + this.current + '>')
         }
+        return this.scan()
     }
 
     skip(): void {
@@ -57,7 +60,16 @@ export class Decoder {
             }
     }
 
-    decodeValue(): JsValue {
+    decode(): any {
+        let done: any = this.decodeValue()
+        this.skip()
+        if (this.current) {
+            this.err('Decoding Error', 'Bad JSON')
+        }
+        return done
+    }
+
+    decodeValue(): any {
         this.skip()
         switch(this.current) {
             case '{':
@@ -83,51 +95,72 @@ export class Decoder {
         }
     }
 
-    decodeObject(): JsObject {
-        console.log('object time!!!!!!')
-        return {
-            'ok': 1
+    decodeObject():{[key: string]: any} {
+        let maybeObject: object = {}
+        this.scanChar('{')
+        this.skip()
+        // check for empty object
+        if (this.current === '}') {
+            this.scanChar('}')
+            return maybeObject
         }
+        while (this.current) {
+            let maybeKey: string = this.decodeString()
+            this.skip()
+            this.scanChar(':')
+            maybeObject[maybeKey] = this.decodeValue()
+            this.skip()
+            // end of object?
+            if (this.current === '}') {
+                this.scanChar('}')
+                return maybeObject
+            }
+            this.scanChar(',')
+            this.skip()
+        }
+        this.err('Object Decoding Error', 'no opening "{" found')
     }
 
-    decodeArray(): JsArray {
-        let maybeArray: JsArray = []
-        if (this.current === '[') {
-            this.scanChar('[')
+    decodeArray(): Array<any> {
+        let maybeArray: Array<any> = []
+        let start: string = this.scanChar('[')
+        this.skip()
+        // check for empty array
+        if (this.current === ']') {
+            this.scanChar(']')
+            return maybeArray
+        }
+        while (this.current) {
+            maybeArray.push(this.decodeValue())
             this.skip()
-            let empty: string = this.current
-            // check for empty array
-            if (empty === ']') {
+            // end of array?
+            if (this.current === ']') {
+                this.scanChar(']')
                 return maybeArray
             }
-            while (this.current) {
-                // try to decode a value
-                maybeArray.push(this.decodeValue())
-                this.skip()
-                // check for end of array
-                empty = this.current
-                if (empty === ']') {
-                    return maybeArray
-                }
-                this.scanChar(',')
-                this.skip()
-            }
+            this.scanChar(',')
+            this.skip()
         }
-        this.err('Array Decoding Error', 'Unbalanced square brackets')
+        this.err('Array Decoding Error', 'no opening "[" found')
     }
 
     decodeString(): string {
         const checkUnicode = ():string => {
-            let codepoints: string = ''
+            let runes: number = 0
             for (let i = 0; i < 4; i++) {
-                let char:string = this.scan()
-                if (! (isNaN(parseInt(char, 16)))) {
-                        return codepoints
+                // grab the base 16 number for the character
+                let char:number = parseInt(this.scan(), 16)
+                // check if we are NaN
+                if (! (isNaN(char))
+                    // check if we are finite
+                    || (isFinite(char))) {
+                        runes += char
                     } else {
                         this.err('Unicode Decoding Error', 'cannot decode unicode value')
                     }
             }
-            
+            // decode the numeric values
+            return String.fromCharCode(runes)
         }
         const escapes: {
             [key: string]: string
@@ -188,7 +221,6 @@ export class Decoder {
                 && (this.current >= '0')
                 && (this.current <= '9')) {
                     maybeNum += this.current
-                    this.scan()
                 }
         }
         // scientific notation
@@ -203,12 +235,13 @@ export class Decoder {
                         this.scan()
                     }
             }
-        // get exponent
+        // get exponent digits
         getDigits()
         // test for valid number
         num = +maybeNum
-        if (isNaN(num)) {
-            this.err('Number Decoding Error', 'cannot decode number')
+        if ((isNaN(num))
+            || (! isFinite(num))) {
+                this.err('Number Decoding Error', 'cannot decode number')
         } else {
             return num
         }
@@ -243,3 +276,31 @@ export class Decoder {
         }
     }
 }
+
+export function decode(json: string) {
+    const d = new Decoder(json)
+    return d.decode()
+}
+
+/*
+export function decode(json: string): JsArray | JsObject | JsValue {
+    const d = new Decoder(json)
+    let js: JsValue = d.decodeValue()
+    // check for array
+    if (Array.isArray(js)) {
+        if (<JsArray>js) {
+            return new Array(js)
+        }
+    }
+    // check for object
+    if (js === Object(js)) {
+        if (<JsObject>js) {
+            return Object(js)
+        }
+    }
+    // return primative
+    else {
+        return js
+    }
+}
+*/
