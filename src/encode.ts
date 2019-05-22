@@ -6,33 +6,22 @@ class Encoder {
         this.js = js
     }
 
+    quote(s: string): string {
+        return '"' + s + '"'
+    }
+
     encode(): string {
-        // build up this string with concat
+        // build up this string
         let json: string = ''
 
         // traverse through this.js dispatching
         // each value for type detection
-        // json += this.detectType()
+        // json = this.detectType()
+        json = this.encodeValue(this.js)
         return json
     }
 
-    detectType(v: any): string {
-        switch (typeof v) {
-            // primitives
-            case 'string':
-                return v
-            case 'number':
-            case 'boolean':
-            case 'symbol':
-                return v.toString()
-            // object wrapped types
-            case 'object':
-                return this.unwrapObjectType()
-            case undefined:
-        }
-    }
-
-    unwrapObjectType(): string {
+    unwrapObjectType(v: any): string {
         /* maybe iterate through an Array of constructors
             for object wrapped types?
             [Array, Object, Number, String, Boolean...]
@@ -51,10 +40,68 @@ class Encoder {
         return 'sure'
     }
 
+    encodeValue(v: any): string {
+        switch(typeof v) {
+           // primitives
+            case 'string':
+                return v
+            case 'number':
+            case 'boolean':
+            case 'symbol':
+                return v.toString()
+            // object wrapped types
+            case 'object':
+                if (v === null) {
+                    return 'null'
+                }
+                return this.encodeValue(
+                    this.unwrapObjectType(v)
+                )
+            case undefined:
+        }
+    }
+
     // these will have to recursively descend their
     // member values
-    encodeObject() {}
-    encodeArray() {}
+    //
+    // interface MapLike<T> {
+    //     [key: string]: T 
+    // }
+    // encodeMapLike(m: MapLike): string {}
+    encodeObject(o: any) {
+        const kvPair = (k: string, v: string): string => {
+            return this.quote(k) + ':' + v.toString() + ','
+        }
+        let objectString: string = '{'
+        for (let key in o) {
+            if (o[key] instanceof Array) {
+                // call this.encodeArray()
+                continue
+            }
+            if (o[key] instanceof Object) {
+                // call this.encodeObject()
+            } else {
+                objectString += kvPair(key, o[key])
+            }
+        }
+        objectString = objectString.slice(0, -1) + '}'
+        return objectString
+    }
+
+    // interface ArrayLike<T> extends Array<T> {
+    //      
+    // }
+    // encodeArrayLike(a: ArrayLike): string {}
+    encodeArray(a: any) {
+        const element = (e: any):string => {
+            // encode e
+            return this.encode(e) + ','
+        }
+        let arrayString = '['
+        for (let i = 0; i < a.length; i++) {
+            arrayString += element(a[i])
+        }
+    }
 
     // these also might no be necessary if I do type
     // detection (inference? deduction?) elsewhere
@@ -62,9 +109,9 @@ class Encoder {
     // .toString() anyway
     encodeString(s: any): string {
         if (typeof s === 'string') {
-            return s
+            return '"' + s + '"'
         } else if (s.constructor.name === 'String') {
-            return s.toString()
+            return '"' + s.toString() + '"'
         }
     }
     encodeNumber(n: any): string {
