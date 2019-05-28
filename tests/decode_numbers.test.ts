@@ -27,11 +27,13 @@ describe('A decoder...', function () {
         })
 
         it('will decode numbers in scientific notation', function () {
-            const avagodrosNumberDecoder: number = decode('6.02E-23')
+            const avagodrosNumberDecoder: number = decode('6.02E23')
+            const massOfElectron: number = decode('9.11E-34')
             const massOfTheSunDecoder: number = decode('1.989e+30')
             const negativeBigGDecoder: number = decode('-6.647e-11')
 
-            expect(avagodrosNumberDecoder).equal(6.02E-23)
+            expect(avagodrosNumberDecoder).equal(6.02E23)
+            expect(massOfElectron).equal(9.11E-34)
             expect(massOfTheSunDecoder).equal(1.989e30)
             expect(negativeBigGDecoder).equal(-6.647e-11)
         })
