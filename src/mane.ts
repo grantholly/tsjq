@@ -1,4 +1,5 @@
 import { encode } from './encode'
+import { decode } from './decode'
 
 // null tests
 const reallyNull = null
@@ -19,4 +20,4 @@ const emptyArray = []
 // object tests
 const emptyObject = {}
 
-console.log(encode(reallyNull))
+console.log(encode([1,2]))
