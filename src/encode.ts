@@ -1,24 +1,12 @@
 class Encoder {
     js: any
-    current: any
 
     constructor(js: any) {
         this.js = js
     }
 
-    quote(s: string): string {
-        return '"' + s + '"'
-    }
-
     encode(): string {
-        // build up this string
-        let json: string = ''
-
-        // traverse through this.js dispatching
-        // each value for type detection
-        // json = this.detectType()
-        json = this.encodeValue(this.js)
-        return json
+        return this.encodeValue(this.js)
     }
 
     encodeValue(v: any): string {
@@ -35,6 +23,15 @@ class Encoder {
                 if (v === null) {
                     return 'null'
                 }
+                if (v instanceof String) {
+                    return this.encodeString(v as string)
+                }
+                if (v instanceof Number) {
+                    return this.encodeNumber(v as number)
+                }
+                if (v instanceof Boolean) {
+                    return (v as boolean).toString()
+                }
                 if (Array.isArray(v)) {
                     return this.encodeArray(v)
                 } else {
@@ -44,46 +41,64 @@ class Encoder {
         }
     }
 
-    encodeObject(o: any) {
-        const kvPair = (k: string, v: string): string => {
-            return this.quote(k) + ':' + v.toString() + ','
+    encodeObject(o: object) {
+        // I have to screen for function members of o object
+        // and the a Array in this.encodeArray
+        // I could loop through props checking that 
+        // typeof o[prop] is not a function
+        const props: Array<string> = Object.getOwnPropertyNames(o)
+        const len: number = Object.getOwnPropertyNames(o).length
+        let objectString: string = ''
+        if (len === 0) {
+            return '{}'
         }
-        let objectString: string = '{'
-        for (let key in o) {
-            if (o[key] instanceof Array) {
-                // call this.encodeArray()
-                continue
-            }
-            if (o[key] instanceof Object) {
-                // call this.encodeObject()
-            } else {
-                objectString += kvPair(key, o[key])
+        objectString += '{'
+        for (let prop in o) {
+            let key: string = this.encodeString(prop)
+            if (key) {
+                objectString += key + ':'
+                if (props.indexOf(prop) === len - 1) {
+                    objectString += this.encodeValue(o[prop]) + '}'
+                } else {
+                    objectString += this.encodeValue(o[prop]) + ','
+                }
             }
         }
-        objectString = objectString.slice(0, -1) + '}'
         return objectString
     }
 
     encodeArray(a: Array<any>): string {
         const len: number = a.length
-        let aa: string = ''
+        let arrayString: string = ''
         if (len === 0) {
             return '[]'
         }
-        aa += '['
+        arrayString += '['
         for (let i = 0; i < len; i++) {
             if (i === len - 1) {
-                aa += this.encodeValue(a[i]) + ']'
+                arrayString += this.encodeValue(a[i]) + ']'
             } else {
-                aa += this.encodeValue(a[i]) + ','
+                arrayString += this.encodeValue(a[i]) + ','
             }
         }
-        return aa
+        return arrayString
     }
 
     encodeString(s: string): string {
-        return 'encodeString stub'
+        let escapes: {
+            [key: string]: string
+        } = {
+            '\b': '\\b',
+            '\t': '\\t',
+            '\n': '\\n',
+            '\f': '\\f',
+            '\r': '\\r',
+            '\"': '\\\"',
+            '\\': '\\\\'
+        }
+        return '"' + s + '"'
     }
+
     encodeNumber(n: number): string {
         if (isFinite(n)) {
             return n.toString()

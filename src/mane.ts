@@ -20,4 +20,22 @@ const emptyArray = []
 // object tests
 const emptyObject = {}
 
-console.log(encode([1,2]))
+console.log(encode(
+    {'a': 1, 
+    'b': true, 
+    'c': false, 
+    'd': null,
+    'e': [
+        1, 
+        true, 
+        false, 
+        null, 
+        [], 
+        {}
+    ],
+    'f': {'a': 1,
+        'b': true,
+        'c': false,
+        'd': null,
+        'e': {}}
+    }))
