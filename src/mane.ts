@@ -1,0 +1,41 @@
+import { encode } from './encode'
+import { decode } from './decode'
+
+// null tests
+const reallyNull = null
+
+// boolean tests
+const reallyTrue = true
+const reallyFalse = false
+
+// string tests
+const emptyString = ''
+
+// number tests
+const ten = 10
+
+// array tests
+const emptyArray = []
+
+// object tests
+const emptyObject = {}
+
+console.log(encode(
+    {'a': 1, 
+    'b': true, 
+    'c': false, 
+    'd': null,
+    'e': [
+        1, 
+        true, 
+        false, 
+        null, 
+        [], 
+        {}
+    ],
+    'f': {'a': 1,
+        'b': true,
+        'c': false,
+        'd': null,
+        'e': {}}
+    }))
