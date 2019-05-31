@@ -30,7 +30,14 @@ describe('an encoder...', function () {
             expect(newlineEncoder).equal('"\\nnewline\\n"')
             expect(carriageReturnEncoder).equal('"return\\r"')
             expect(doubleEscapeEncoder).equal('"\\\\escaped"')
-        
+            
+        })
+        it('properly escaped unicode chars', function () {
+            const unicodeEscapeEncoder: string = encode('\u1234')
+            const mixedEncoder: string = encode('\u2b50 good job \u2b50')
+
+            expect(unicodeEscapeEncoder).equal('"\\u1234"')
+            expect(mixedEncoder).equal('"\\u2b50 good job \\u2b50"')
         })
     })
 })

@@ -85,37 +85,45 @@ class Encoder {
     }
 
     encodeString(s: string): string {
+        const needsEscaping: RegExp = /[\u007f-\uffff]/g
         let jsonString: string = '"'
-        for (let i = 0; i < s.length; i++) {
-            let char: string = s[i]
-            switch(char) {
-                case '\\':
-                case '"':
-                    jsonString += '\\' + char
-                    break
-                case '/':
-                    jsonString += '\\' + char
-                    break
-                case '\b':
-                    jsonString += '\\b'
-                    break
-                case '\t':
-                    jsonString += '\\t'
-                    break
-                case '\n':
-                    jsonString += '\\n'
-                    break
-                case '\f':
-                    jsonString += '\\f'
-                    break
-                case '\r':
-                    jsonString += '\\r'
-                    break
-                default:
-                    jsonString += char 
+        if (needsEscaping.test(s)) {
+            return '"' +
+                s.replace(needsEscaping, function (c) {
+                    return '\\u' + (c.charCodeAt(0).toString(16).slice(-4))
+                }) + '"'
+        } else {
+            for (let i = 0; i < s.length; i++) {
+                let char: string = s[i]
+                switch(char) {
+                    case '\\':
+                    case '"':
+                        jsonString += '\\' + char
+                        break
+                    case '/':
+                        jsonString += '\\' + char
+                        break
+                    case '\b':
+                        jsonString += '\\b'
+                        break
+                    case '\t':
+                        jsonString += '\\t'
+                        break
+                    case '\n':
+                        jsonString += '\\n'
+                        break
+                    case '\f':
+                        jsonString += '\\f'
+                        break
+                    case '\r':
+                        jsonString += '\\r'
+                        break
+                    default:
+                        jsonString += char 
+                }
             }
+            return jsonString + '"'
         }
-        return jsonString + '"'
     }
 
     encodeNumber(n: number): string {
