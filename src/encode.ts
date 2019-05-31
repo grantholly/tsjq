@@ -85,18 +85,37 @@ class Encoder {
     }
 
     encodeString(s: string): string {
-        let escapes: {
-            [key: string]: string
-        } = {
-            '\b': '\\b',
-            '\t': '\\t',
-            '\n': '\\n',
-            '\f': '\\f',
-            '\r': '\\r',
-            '\"': '\\\"',
-            '\\': '\\\\'
+        let jsonString: string = '"'
+        for (let i = 0; i < s.length; i++) {
+            let char: string = s[i]
+            switch(char) {
+                case '\\':
+                case '"':
+                    jsonString += '\\' + char
+                    break
+                case '/':
+                    jsonString += '\\' + char
+                    break
+                case '\b':
+                    jsonString += '\\b'
+                    break
+                case '\t':
+                    jsonString += '\\t'
+                    break
+                case '\n':
+                    jsonString += '\\n'
+                    break
+                case '\f':
+                    jsonString += '\\f'
+                    break
+                case '\r':
+                    jsonString += '\\r'
+                    break
+                default:
+                    jsonString += char 
+            }
         }
-        return '"' + s + '"'
+        return jsonString + '"'
     }
 
     encodeNumber(n: number): string {

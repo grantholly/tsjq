@@ -15,20 +15,22 @@ describe('an encoder...', function () {
             expect(simpleEncoder).equal('"this is a test"')
         })
         it('handles escaped strings', function () {
-            const escapedQuotes: string = '\"let them eat cake\" she said'
-            const backspace: string = 'hi \bthere'
-            const tabbed: string = '\ttab'
-            const doubleEscape: string = '\escaped'
+            const escapedQuotesEncoder: string = encode('\"let them eat cake\" she said')
+            const backspaceEncoder: string = encode('hi \bthere')
+            const tabbedEncoder: string = encode('\ttab')
+            const formFeedEncoder: string = encode('form\f')
+            const newlineEncoder: string = encode('\nnewline\n')
+            const carriageReturnEncoder: string = encode('return\r')
+            const doubleEscapeEncoder: string = encode('\\escaped')
 
-            const escapedQuotesEncoder: string = encode(escapedQuotes)
-            const backspaceEncoder: string = encode(backspace)
-            const tabbedEncoder: string = encode(tabbed)
-            const doubleEscapeEncoder: string = encode(doubleEscape)
-
-            console.log(escapedQuotesEncoder)
-            console.log(backspaceEncoder)
-            console.log(tabbedEncoder)
-            console.log(doubleEscapeEncoder)
+            expect(escapedQuotesEncoder).equal('"\\"let them eat cake\\" she said"')
+            expect(backspaceEncoder).equal('"hi \\bthere"')
+            expect(tabbedEncoder).equal('"\\ttab"')
+            expect(formFeedEncoder).equal('"form\\f"')
+            expect(newlineEncoder).equal('"\\nnewline\\n"')
+            expect(carriageReturnEncoder).equal('"return\\r"')
+            expect(doubleEscapeEncoder).equal('"\\\\escaped"')
+        
         })
     })
 })
