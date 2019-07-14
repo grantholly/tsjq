@@ -1,21 +1,3 @@
-/*
-type JsValue = null | number | string | boolean | JsObject | JsArray
-
-interface JsObject {
-    [key: string]: JsValue
-}
-
-interface JsArray extends Array<JsValue> {}
-
-type jsv = {kind: 'JsNull'}
-    | {kind: 'JsBool', value: boolean}
-    | {kind: 'JsString', value: string}
-    | {kind: 'JsNumber', asFloat: boolean, value: number}
-    | {kind: 'JsArray', value: Array<jsv>}
-    | {kind: 'JsObject', value: { [key: string]: jsv }}
-
-*/
-
 class Decoder {
     idx: number
     json: string
@@ -95,8 +77,8 @@ class Decoder {
         }
     }
 
-    decodeObject():{[key: string]: any} {
-        let maybeObject: object = {}
+    decodeObject(): {[key: string]: any} {
+        let maybeObject = {}
         this.scanChar('{')
         this.skip()
         // check for empty object
@@ -281,26 +263,3 @@ export function decode(json: string) {
     const d = new Decoder(json)
     return d.decode()
 }
-
-/*
-export function decode(json: string): JsArray | JsObject | JsValue {
-    const d = new Decoder(json)
-    let js: JsValue = d.decodeValue()
-    // check for array
-    if (Array.isArray(js)) {
-        if (<JsArray>js) {
-            return new Array(js)
-        }
-    }
-    // check for object
-    if (js === Object(js)) {
-        if (<JsObject>js) {
-            return Object(js)
-        }
-    }
-    // return primative
-    else {
-        return js
-    }
-}
-*/
