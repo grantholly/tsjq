@@ -18,7 +18,6 @@ interface JSArray extends Array<JSVal> {}
 interface JSObject {
     [key: string]: JSVal
 }
-*/
 
 class JSVal {
     v: any
@@ -42,7 +41,16 @@ interface JSArray extends Array<JSVal> {}
 interface JSObject extends Object{
     [key: string]: JSVal
 }
+*/
+
+type JSVal = string | number | boolean | JSObject | JSArray
+
+interface JSObject {
+    [key: string]: JSVal
+}
+
+interface JSArray extends Array<JSVal> {}
 
 export {
-    JSNull, JSNumber, JSString, JSBool, JSVal, JSArray, JSObject
+    JSVal, JSObject, JSArray
 }

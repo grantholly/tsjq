@@ -41,7 +41,7 @@ class Encoder {
         }
     }
 
-    encodeObject(o: object) {
+    encodeObject(o: object): string {
         // I have to screen for function members of o object
         // and the a Array in this.encodeArray
         // I could loop through props checking that 
