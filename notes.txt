@@ -1,0 +1,92 @@
+current problem blocking type safety implementation:
+
+desired type system
+```
+type JSNull = null
+type JSNumber = number
+type JSString = string
+type JSBool = boolean
+
+type JSVal = JSNull | JSNumber | JSString | JSBool | JSArray | JSObject
+
+interface JSArray extends Array<JSVal> {}
+
+interface JSObject {
+    [key: string]: JSVal
+}
+```
+
+The problem is that type information gets lost when using the union type JSVal
+
+```
+const a: JSVal = [1, true, "yes", null, [], {}]
+
+const run = (): JSVal => {
+  return a
+}
+
+const aa: JSVal = run()
+
+// this works fine
+console.log(a.length)
+
+// this cannot find the .length property
+console.log(aa.length)
+```
+
+Using a class based implementation also fails, and introduces problems with null
+
+```
+class JSVal {}
+//class JSNull extends JSVal {} 
+class JSNumber extends JSVal {}
+class JSString extends JSVal {}
+class JSBool extends JSVal {}
+interface JSArray extends Array<JSVal> {}
+interface JSObject extends Object{
+  [key: string]: JSVal
+}
+
+const a: JSVal = [1, true, "yes", [], {}]
+
+const run = (): JSVal => {
+  return a
+}
+
+const aa: JSVal = run()
+
+// this now doesn't work
+console.log(a.length)
+
+// this cannot find the .length property on the underlying array
+console.log(aa.length)
+```
+
+Even the suggested workaround from the Typescript language author doesn't work.
+It also has problems with null.
+
+https://github.com/microsoft/TypeScript/issues/3496#issuecomment-128553540
+
+```
+type JSV = number | string | number | boolean | JSObject | JSArray
+
+interface JSObject {
+  [key: string]: JSV
+}
+
+interface JSArray extends Array<JSV> {}
+
+const a: JSV = [1,true,"ok",[],{}]
+
+const run = (): JSV => {
+  return a
+}
+
+const aa: JSV = run()
+
+// this works
+console.log(a.length)
+// this cannot find the .length method
+console.log(aa.length)
+```
+
