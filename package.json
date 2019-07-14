@@ -1,12 +1,22 @@
 {
-  "name": "jsjq",
+  "name": "tsjq",
   "version": "1.0.0",
   "description": "json parser for fun",
-  "main": "dist/main.js",
+  "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "nyc -r lcov -e .ts -x \"*.test.ts\" mocha -r ts-node/register tests/**/*.test.ts && nyc report"
+    "test": "nyc -r lcov -e .ts -x \"*.test.ts\" mocha -r ts-node/register tests/**/*.test.ts && nyc report",
+    "build": "tsc",
+    "link": "npm run build && cd dist & npm link"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/grantholly/tsjq"
+  },
+  "keywords": [
+    "typescript",
+    "json"
+  ],
   "author": "Grant Holly",
   "license": "MIT",
   "devDependencies": {
