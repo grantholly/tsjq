@@ -105,7 +105,7 @@ class Decoder {
 
     decodeArray(): Array<any> {
         let maybeArray: Array<any> = []
-        let start: string = this.scanChar('[')
+        this.scanChar('[')
         this.skip()
         // check for empty array
         if (this.current === ']') {
@@ -257,7 +257,40 @@ class Decoder {
                 this.err('Null Decoding Error', 'cannot decode null value')
         }
     }
+    decoders = {
+        'string': this.decodeString,
+        'number': this.decodeNumber,
+        'null': this.decodeNull,
+        'boolean': this.decodeBoolean,
+        'array': this.decodeArray,
+        'object': this.decodeObject
+    }
 }
+
+interface JSONType {
+    [attr: string]: string | number | boolean | null | Array<JSONType> | JSONType
+}
+
+type Decoded<T> = {
+    [A in keyof T]: T[A] extends keyof JSONType ? T[A] : string
+}
+
+export function decodeSafe<T>(json: string): Decoded<T> {
+    // try to match the decoded T to the json and
+    // return an error or value: T
+    let j = decode(json)
+    return
+}
+
+// used like
+let a: string = decodeSafe<string>('"ok"')
+let b: number = decodeSafe<number>('11.5')
+let c: null = decodeSafe<null>('null')
+let d: boolean = decodeSafe<boolean>('false')
+let e: Array<number> = decodeSafe<Array<number>>('[1,2,3]')
+// though I am not sure the type signature of decoding something
+// like [true, 2, null].  Maybe Array<any>
+// 
 
 export function decode(json: string) {
     const d = new Decoder(json)

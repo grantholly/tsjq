@@ -41,7 +41,6 @@ interface JSArray extends Array<JSVal> {}
 interface JSObject extends Object{
     [key: string]: JSVal
 }
-*/
 
 type JSVal = string | number | boolean | JSObject | JSArray
 
@@ -51,6 +50,31 @@ interface JSObject {
 
 interface JSArray extends Array<JSVal> {}
 
+type JSVal = JSObject | boolean | null | number | string | JSArray<JSObject | number | string | boolean | null>
+
+interface JSArray<T> {
+    [i: number]: T | JSArray<T>
+}
+
+interface JSObject {
+    [key: string]: JSVal
+}
+
+type JsNull = null
+type JsString = string
+type JsNumber = number
+type JsBool = boolean
+interface JsArray extends Array<JsNull | JsString | JsBool | JsNumber> {}
+interface JsObject {
+    [key: string]: JsNull | JsString | JsNumber | JsBool | JsArray | JsObject
+}
+
+let t: JsObject = {'a': 1}
+t.hasOwnProperty('a')
+
 export {
     JSVal, JSObject, JSArray
 }
+
+*/
+
